@@ -35,25 +35,25 @@ PDFs explaining details of the licensing terms are included in the source code d
 
 There are currently three options for obtaining and installing OpenLogos.
 
-1. Download the source and compile it yourself
+### 1. Download the source and compile it yourself
 
 Source downloads are available at the download page. Compilation then proceeds with the normal Unix toolchain.
 
-### Ubuntu Linux:
+#### Ubuntu Linux:
 
 My notes on installation on Ubuntu 10.10 are at Installation_and_use/Ubuntu-10_10.
 
 The definitive article on Ubuntu installation and configuration is Torsten Scheck's 2006 article in German and translated here on the Wiki at Installation_and_Use/Ubuntu-5_x). There is also a list of updated instructions for Ubuntu 9.x here.
 
-### Slackware Linux up to 12.2:
+#### Slackware Linux up to 12.2:
 
 (Apparently Slackware 13.0 has broken the build.) Very explicit notes at 1, with thanks to Martin Dowd.
 
-2. Use a precompiled VirtualBox machine
+### 2. Use a precompiled VirtualBox machine
 
 VirtualBox is a Sun (now Oracle) product that lets you host virtual machines on the computer of your choice. I'm currently setting up an Ubuntu 10.10 install on my Windows 7 machine, for instance - but there is a completed VirtualBox installation already available here. Check the README there for instructions on how to use it.
 
-3. Use the precompiled Windows version
+### 3. Use the precompiled Windows version
 
 Norman Reid has contributed a version of OpenLogos compiled with MinGW under Windows. Download it from DFKI. Norman's source changes and Eclipse project are available in the Windows source version. Some of those changes have been rolled into the main source tree; eventually, a standard build with the MinGW toolchain will be part of the standard offering here at SourceForge, but ... not yet.
 
