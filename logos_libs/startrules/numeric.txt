@@ -1,0 +1,32 @@
+negative currency: keep "-$" together in a negative dollar amount
+3nn and nn3 get looked up - if not found becodes tokMixedAlpha_Num
+remove unfound_alpha_numeric
+tok_No_16_04: restrict to digit × digit eg 4×5
+
+Type                    Type               Units          Sign      Description
+----                    ----               -----          ----      -----------
+                                                        
+tok_No_Range_0          tok_No_0           none           none      0
+tok_No_Range_1          tok_No_1           none           none      1
+tok_No_Range_2          tok_No_2           none           none      2
+tok_No_Range_3_4        tok_No_3_4         none           none      3    to 4
+tok_No_Range_5_31       tok_No_5_31        none           none      5    to 31
+tok_No_Range_32_99      tok_No_31_99       none           none      32   to 99
+tok_No_Range_100_999    tok_No_100_999     none           none      100  to 999
+tok_No_Range_1000_1399  tok_No_1000_1399   none           none      1000 to 1399
+tok_No_Range_1400_2100  tok_No_1400_2100   none           none      1400 to 2100 - thousand separators
+tok_Poss_Date           tok_Poss_Date      none           none      1400 to 2100 - no thousand separators
+tok_No_Range_2101_      tok_No_2101_       none           none      2101 up
+                                                        
+tok_No_16_04            tok_Number_16_04   none           none      digit × digit eg 4×5
+                                                                
+tok_No_16               tok_Number_16      none           none      whole number followed by period
+tok_No_Decimal          tok_Decimal_No     none           none      decimal only
+tok_No_Fraction         tok_Fraction       none           none      fraction only
+tok_No_Mixed            tok_Mixed_No       none           none      whole no. + (decimal or fraction)
+tok_No_16_14            tok_Number_16_14   none           yes       arbitrary
+                                                        
+tok_No_Curr             tok_Number         currency       optional  arbitrary
+tok_No_Non_Curr_Unit    tok_Number_14_04   non-currency   optional  arbitrary
+tok_No_04               tok_Number_04      German suffix  none      German suffixes
+

@@ -1,0 +1,2886 @@
+; file: finish.rules
+
+; -----------------------------------------------------------------------------
+; pre-processing rules common to all target languages
+
+[pre-process]
+
+; -----------------------------------------
+; pre-processing primitives
+;
+; consequents - group as input, no output
+;
+; init_cap   : capitalize the first character in the group
+; lower_case : set group to all lower case
+; -----------------------------------------
+
+
+
+; -----------------------------------------
+; note: order is important - since we want to close up space
+;       after the following 2 rules
+
+; example: @INIT_CAP germany -> Germany:
+
+rule> <1> 1 ant 2 con <initially capitalize succeeding word>
+search right_border <@INIT_CAP *(\w+)>
+init_cap 1
+replace group 0 with <\1>
+prescan> <1>
+<@INIT_CAP>
+
+rule> <2> 1 ant 2 con <initially capitalize succeeding word>
+search right_border <@INIT_CAP *@ASPIRE *(\w+)>
+init_cap 1
+replace group 0 with <@ASPIRE \1>
+prescan> <1>
+<@INIT_CAP @ASPIRE>
+
+; -----------------------------------------
+; example: @LC_RGHT GERMANY -> germany:
+
+rule> <3> 1 ant 2 con <set succeeding word to lower case>
+search right_border <@LC_RGHT (\w+)>
+lower_case 1
+replace group 0 with <\1>
+prescan> <1>
+<@LC_RGHT>
+
+rule> <4> 1 ant 2 con <set succeeding word to lower case>
+search right_border <@LC_RGHT @ASPIRE (\w+)>
+lower_case 1
+replace group 0 with <@ASPIRE \1>
+prescan> <1>
+<@LC_RGHT @ASPIRE>
+
+; -----------------------------------------
+; There must be one and only one space following a @LC_RGHT.
+; More than one space indicates a blank word. This will remove
+; the @LC_RGHT not matched on in the previous rule and maintain
+; the space for the word.
+;search <(@LC_RGHT *)(\w+)>
+
+rule> <5> 1 ant 1 con <set succeeding word to lower case>
+search right_border <@LC_RGHT *>
+replace group 0 with < >
+prescan> <1>
+<@LC_RGHT>
+
+; -----------------------------------------
+; example: close @CLS_SP up -> closeup:
+; example: close @CLS_SP @LC_RGHT Up -> closeup:
+
+rule> <6> 1 ant 1 con <close up spaces between 2 words>
+search right_border <( *@CLS_SP )((@ASPIRE )?\w+)>
+replace group 1 with <>
+prescan> <1>
+<@CLS_SP>
+
+; -----------------------------------------
+; There must be one and only one space following a @CLS_SP.
+; More than one space indicates a blank word. This will remove
+; the @CLS_SP not matched on in the previous rule and maintain
+; the space for the word.
+
+rule> <7> 1 ant 1 con <close up spaces between 2 words>
+search right_border < *@CLS_SP *>
+replace group 0 with <>
+prescan> <1>
+<@CLS_SP>
+
+; -----------------------------------------
+; example: close @HYPHEN up -> close-up:
+
+rule> <8> 1 ant 1 con <close up space and insert a hyphen>
+search no_border < *@HYPHEN *>
+replace group 0 with <->
+prescan> <1>
+<@HYPHEN>
+
+; -----------------------------------------
+; example: close @APOST up -> close'up:
+
+rule> <9> 1 ant 1 con <close up space and insert an apostrophe>
+search no_border < *@APOST *>
+replace group 0 with <'>
+prescan> <1>
+<@APOST>
+
+
+
+
+
+
+
+
+
+
+
+; -----------------------------------------------------------------------------
+[english]
+
+; -----------------------------------------
+; example: a big doll -> <unchanged>
+; example: a engine -> an engine
+; example: a European castle -> <unchanged>
+; example: a English peasant -> an English peasant
+; example: a over -> an over
+; example: a once lovely figure -> <unchanged>
+; example: a Once -> <unchanged>
+; example: a one -> <unchanged>
+; example: a One -> <unchanged>
+; example: a @ASPIRE horrible day -> a horrible day
+; example: a honour -> an honour
+; example: a @ASPIRE union -> a union
+; example: a uncle -> an uncle
+; example: a 99 -> <unchanged>
+; example: a 80 pound animal -> an 80 pound animal
+; example: a 18 pound animal -> an 18 pound animal
+; example: a $10 turkey -> <unchanged>
+; example: a $8 turkey -> an $8 turkey
+; example: a $18 turkey -> an $18 turkey
+
+; example: A big doll -> <unchanged>
+; example: A engine -> An engine
+; example: A European castle -> <unchanged>
+; example: A English peasant -> An English peasant
+; example: A over -> An over
+; example: A once lovely figure -> <unchanged>
+; example: A Once -> <unchanged>
+; example: A one -> <unchanged>
+; example: A One -> <unchanged>
+; example: A @ASPIRE horrible day -> a horrible day
+; example: A honour -> An honour
+; example: A @ASPIRE union -> a union
+; example: A uncle -> An uncle
+; example: A 99 -> <unchanged>
+; example: A 80 pound animal -> An 80 pound animal
+; example: A 18 pound animal -> An 18 pound animal
+; example: A $10 turkey -> <unchanged>
+; example: A $8 turkey -> An $8 turkey
+; example: A $18 turkey -> An $18 turkey
+
+rule> <100> 1 ant 1 con <article + vowel - exceptions>
+search <([aA]) +([Ee]u\w*|[oO]nc?e)>
+replace group 1 with <\1@@Exception@@>
+prescan> <8>
+<a Eu>
+<a eu>
+<A Eu>
+<A eu>
+<a on>
+<A on>
+<a On>
+<A On>
+
+rule> <101> 1 ant 1 con <article + vowel - default case>
+search <([aA]) +([aeiouhAEIOUH]|[$£]?(8|1[18]))\w*>
+replace group 1 with <\1n>
+
+rule> <102> 1 ant 1 con <remove exception>
+search <[Aa](@@Exception@@)>
+replace group 1 with <>
+prescan> <2>
+<a@@Exception@@>
+<A@@Exception@@>
+
+; -----------------------------------------
+; note that @ASPIRE may occur with or without a space after it
+rule> <103> 1 ant 1 con <remove superfluous codes>
+search no_border <@ASPIRE *>
+replace group 0 with <>
+prescan> <1>
+<@ASPIRE>
+
+
+
+
+
+
+; -----------------------------------------------------------------------------
+[french]
+
+; -----------------------------------------
+; list of french adjectives that do not have comparitive and superlative forms
+
+start-non-compare>
+antérieur
+antérieure
+antérieurs
+antérieures
+bien
+inférieur
+inférieure
+inférieurs
+inférieures
+meilleur
+meilleure
+meilleurs
+meilleures
+mieux
+moins
+moindre
+moindres
+mal
+pire
+pires
+pis
+plus
+postérieur
+postérieure
+postérieurs
+postérieures
+précédent
+précédente
+précédents
+précédentes
+supérieur
+supérieure
+supérieurs
+supérieures
+suivant
+suivante
+suivants
+suivantes
+supplémentaire
+supplémentaires
+ultérieur
+ultérieurs
+ultérieure
+ultérieures
+premier
+première
+premiers
+premières
+dernier
+dernière
+derniers
+dernières
+majeur
+majeure
+majeurs
+majeures
+mineur
+mineure
+mineurs
+mineures
+extérieur
+extérieure
+extérieurs
+extérieures
+intérieur
+intérieure
+intérieurs
+intérieures
+infime
+infimes
+minime
+minimes
+ultime
+ultimes
+end-non-compare>
+
+; -----------------------------------------
+; list of words for which elision does not occur
+
+start-no-elision>
+oui
+huit
+huitain
+huitaine
+huitième
+onze
+onzième
+uhlan
+ululer
+ululation
+ululement
+yacht
+yachting
+yack
+yak
+yankee
+yaourt
+yard
+yatagan
+yen
+yeoman
+yiddish
+yiddich
+yod
+yoga
+yogi
+yoghourt
+yoghourth
+yogourt
+yole
+yougoslave
+Yougoslavie
+youpin
+youtre
+yoyo
+youyou
+yucca
+end-no-elision>
+
+; -----------------------------------------
+; list of words following 'ce'
+; for which ce -> ç'
+
+start-ce-list-1>
+aille
+alla
+allait
+allât
+end-ce-list-1>
+
+; -----------------------------------------
+; list of words following 'ce'
+; for which ce -> c'
+
+start-ce-list-2>
+en
+est
+étaient
+était
+end-ce-list-2>
+
+; -----------------------------------------
+; list of words between 'ce' and été
+; for which ce -> ç'
+
+start-ce-list-3>
+a
+aient
+ait
+aura
+auraient
+aurait
+auront
+avaient
+avait
+end-ce-list-3>
+
+; -----------------------------------------
+; list of words between 'ce' and été
+; for which ce -> c'
+
+start-ce-list-4>
+eurent
+eussent
+eut
+eût
+ont
+end-ce-list-4>
+
+; -----------------------------------------
+; french primitives
+;
+; antecedents - group as input, return a boolean
+;
+; elisionable: group is not in the no-elision list
+; is_non_comparitive: group is in the list of non-comparitive adjectives
+; is_in_ce_list_1: group is in ce-list-1
+; is_in_ce_list_2: group is in ce-list-2
+; is_in_ce_list_3: group is in ce-list-3
+; is_in_ce_list_4: group is in ce-list-4
+;
+; -----------------------------------------
+
+; -----------------------------------------
+; example un beau @QZ ouvrage -> un bel ouvrage
+; example un nouveau @QZ habit -> un nouvel habit
+
+rule> <200> 2 ant 1 con <descriptive adjectives ending in eau>
+search <(b|nouv)e(au) *@QZ *([aAàÀâÂeEéÉèÈêÊëËiIîÎoOuUûÛhŒœHyY]\w*)>
+elisionable 3
+replace group 2 with <l>
+prescan> <2>
+<beau @QZ>
+<nouveau @QZ>
+
+; -----------------------------------------
+; example un mou @QZ abandon -> un mol abandon
+; example un fou @QZ espoir -> un fol espoir
+
+rule> <201> 2 ant 1 con <descriptive adjectives ending in ol>
+search <(m|f)o(u) *@QZ *([aAàÀâÂeEéÉèÈêÊëËiIîÎoOuUûÛhŒœHyY]\w*)>
+elisionable 3
+replace group 2 with <l>
+prescan> <2>
+<mou @QZ>
+<fou @QZ>
+
+; -----------------------------------------
+; example un vieux @QZ avare -> un vieil avare
+
+rule> <202> 2 ant 1 con <descriptive adjectives - vieux>
+search <vie(ux) *@QZ *([aAàÀâÂeEéÉèÈêÊëËiIîÎoOuUûÛhŒœHyY]\w*)>
+elisionable 2
+replace group 1 with <il>
+prescan> <1>
+<vieux @QZ>
+
+; -----------------------------------------
+; example que y a @QZ @QD il -> qu'y a-t-il
+
+rule> <203> 1 ant 1 con <postposed subject pronouns>
+search right_border <[ae]( *@QZ *@QD *)(il|elle|on)>
+replace group 1 with <-t->
+prescan> <1>
+<@QZ @QD>
+
+; -----------------------------------------
+; example Comprenez @QZ @QD vous? -> Comprenez-vous?
+
+rule> <204> 1 ant 1 con <French hyphenation>
+search no_border <( *@QZ *@QD *)>
+replace group 1 with <->
+prescan> <1>
+<@QZ @QD>
+
+; -----------------------------------------
+; example: de abord -> d'abord
+; example: de y aller -> d'y aller
+; example: de eux -> d'eux
+; example: de où -> d'où
+; example: de habitude -> d'habitude
+; example: de en manger -> d'en manger
+; example: le avion -> l'avion
+; example: le or -> l'or
+; example: le homme -> l'homme
+; example: je le ai -> je l'ai
+; example: je le ouvre -> je l'ouvre
+; example: je le habille -> je l'habille
+; example: je le en prie -> je l'en prie
+; example: je le y envoie -> je l'y envoie
+; example: que il -> qu'il
+; example: parce que il -> parce qu'il
+; example: ce que on -> ce qu'on
+
+; example: je me appelle -> je m'appelle
+; example: tu te habilles -> tu t'habilles
+; example: il se en va -> il s'en va
+; example: je ne ai pas -> je n'ai pas
+
+; example: mangeons-le aussi -> <unchanged>, due to hyphen (stressed pronoun)
+; example: je crois que oui -> <unchanged>, oui is a special word
+; example: le @QZ un de la rue -> <unchanged>, due to @QZ
+; example: le onzième jour - <unchanged>, onzieme is a special word
+
+rule> <205> 2 ant 1 con <elision with de, le, que, je, me, te, se, ne>
+search <(d|l|qu|j|m|t|s|n)(e +)([aAàÀâÂeEéÉèÈêÊëËiIîÎoOuUûÛhŒœHyY]\w*)>
+elisionable 3
+replace group 2 with <'>
+prescan> <8>
+<de >
+<le >
+<que >
+<je >
+<me >
+<te >
+<se >
+<ne >
+
+; -----------------------------------------
+; example: la erreur -> l'erreur
+; example: la église -> l'église
+; example: la habitude -> l'habitude
+; example: je la ai -> je l'ai
+; example: je la ouvre -> je l'ouvre
+; example: je la habille -> je l'habille
+; example: je la en prie -> je l'en prie
+; example: je la y envoie -> je l'y envoie
+; example: prenez-la aujourd'hui -> <unchanged>, due to hyphen (stressed pronoun)
+; example: la yoyo -> <unchanged>, yoyo is special word
+
+rule> <206> 2 ant 1 con <elision with la>
+search <l(a +)([aAàÀâÂeEéÉèÈêÊëËiIîÎoOuUûÛhŒœHyY]\w*)>
+elisionable 2
+replace group 1 with <'>
+prescan> <1>
+<la >
+
+; -----------------------------------------
+; example ce alla -> ç'alla
+
+rule> <207> 2 ant 1 con <elision with ce + word, ce becomes ç'>
+search <(ce +)(\w+)>
+is_in_ce_list_1 2
+replace group 1 with <ç'>
+prescan> <1>
+<ce >
+
+; -----------------------------------------
+; example ce en -> c'en
+; example ce est -> c'est
+
+rule> <208> 2 ant 1 con <elision with ce + word, ce becomes c'>
+search <(ce +)(\w+)>
+is_in_ce_list_2 2
+replace group 1 with <c'>
+prescan> <1>
+<ce >
+
+; -----------------------------------------
+; example ce a été -> ç'a été
+; example ce ait été -> ç'ait été
+
+rule> <209> 2 ant 1 con <elision with ce+word + été, ce becomes ç'>
+search <(ce +)(\w+) +été>
+is_in_ce_list_3 2
+replace group 1 with <ç'>
+prescan> <1>
+<ce >
+
+; -----------------------------------------
+; example c eut été -> c'eut été
+
+rule> <210> 2 ant 1 con <elision with ce+word + été, ce becomes c'>
+search <(ce +)(\w+) +été>
+is_in_ce_list_4 2
+replace group 1 with <c'>
+prescan> <1>
+<ce >
+
+; -----------------------------------------
+; example ce arbre -> cet arbre
+
+rule> <211> 2 ant 1 con <elision with ce - general case>
+search <(ce) +([aAàÀâÂeEéÉèÈêÊëËiIîÎoOuUûÛhŒœHyY]\w*)>
+elisionable 2
+replace group 1 with <cet>
+prescan> <1>
+<ce >
+
+; -----------------------------------------
+; example ma école -> mon école
+
+rule> <212> 2 ant 1 con <possesive adjectives>
+search <(m|t|s)(a) +([aAàÀâÂeEéÉèÈêÊëËiIîÎoOuUûÛhŒœHyY]\w*)>
+elisionable 3
+replace group 2 with <on>
+prescan> <3>
+<ma >
+<ta >
+<sa >
+
+; -----------------------------------------
+; note that @ASPIRE may occur with or without a space after it
+rule> <213> 1 ant 1 con <remove superfluous codes>
+search no_border <@ASPIRE *>
+replace group 0 with <>
+prescan> <1>
+<@ASPIRE>
+
+; -----------------------------------------
+; example: lorsque en -> lorsqu'en
+; example: jusque ici -> jusqu'ici
+; example: puisque yoyo -> <unchanged>, yoyo is special word
+
+rule> <214> 2 ant 1 con <elision with lorsque, puisque, quoique, jusque>
+search <(lors|puis|quoi|jus)qu(e +)([aAàÀâÂeEéÉèÈêÊëËiIîÎoOuUûÛhHyY]\w*)>
+elisionable 3
+replace group 2 with <'>
+prescan> <4>
+<lorsque >
+<puisque >
+<quoique >
+<jusque >
+
+; -----------------------------------------
+; example: quelque un -> quelqu'un
+; example: quelque une -> quelqu'une
+; example: quelque other -> <unchanged>
+
+rule> <215> 1 ant 1 con <elision with quelque - before un(e)>
+search <quelqu(e +)une?>
+replace group 1 with <'>
+prescan> <1>
+<quelque >
+
+; -----------------------------------------
+; example: quelque uns -> quelques-uns
+; example: quelque unes -> quelques-unes
+; example: quelque others -> <unchanged>
+
+rule> <216> 1 ant 1 con <elision with quelque - before un(e)s>
+search <quelqu(e +)une?s>
+replace group 1 with <es->
+prescan> <1>
+<quelque >
+
+; -----------------------------------------
+; example si il -> s'il
+; example si ils -> s'ils
+; example si illisible -> <unchanged>
+; example si il ne est -> s'il n'est
+
+rule> <217> 1 ant 1 con <conjunction with si>
+search <si +il(s?)>
+replace group 0 with <s'il\1>
+prescan> <2>
+<si il>
+<si ils>
+
+; -----------------------------------------
+; example: à le -> au
+; example: à lequel -> auquel
+; example: à le ange -> à l'ange
+; example: à le accident -> à l'accident
+
+; note: order is important here.
+;       elision rules should come before contractions
+;       the last example should -not- become "au ange"
+; This rule is subject to euristic processing in RegularExpression.cpp
+; and is not processed by GNU regex engine.
+
+rule> <218> 1 ant 1 con <contract à + le,lequel,lesquels,lesquelles>
+search <(.*')?(à +le)(quel)?>
+replace group 2 with <au>
+prescan> <2>
+<à le>
+<à lequel>
+
+; -----------------------------------------
+; example: de le -> du
+; example: de lequel -> duquel
+; example: de le avion -> de l'avion
+
+rule> <219> 1 ant 1 con <contract de + le,lequel>
+search <(de +le)((quel)?)>
+replace group 1 with <du>
+prescan> <2>
+<de le>
+<de lequel>
+
+; -----------------------------------------
+; example: à les -> aux
+; example: à lesquels -> auxquels
+; example: à lesquelles -> auxquelles
+; This rule is subject to euristic processing in RegularExpression.cpp
+; and is not processed by GNU regex engine.
+
+rule> <220> 1 ant 1 con <contract à + les,lequels,lesquelles>
+search <(.*')?(à +les)(quels|quelles)?>
+replace group 2 with <aux>
+prescan> <3>
+<à les>
+<à lesquels>
+<à lesquelles>
+
+; -----------------------------------------
+; example: de les -> des
+; example: de lesquels -> desquels
+; example: de lesquelles -> desquelles
+
+rule> <221> 1 ant 1 con <contract de + les,lequels,lequelles>
+search <(de +les)(quels|quelles)?>
+replace group 1 with <des>
+prescan> <3>
+<de les>
+<de lesquels>
+<de lesquelles>
+
+; -----------------------------------------
+; example plus meilleur -> meilleur
+; example plus other -> <unchanged>
+; example other plus -> <unchanged>
+
+rule> <222> 2 ant 1 con <fix irregular comparitive & superlative forms>
+search <(plus +)(\w*)>
+is_non_comparitive 2
+replace group 1 with <>
+prescan> <1>
+<plus >
+
+; -----------------------------------------
+; example:  (word)d' a(word) -> (word)d'a(word)
+
+rule> <223> 1 ant 1 con <-l' [aAàÀâÂeEéÉèÈêÊëËiIîÎoOuUûÛhŒœHyY]\w*>
+search <\w*(d')( +)([aAàÀâÂeEéÉèÈêÊëËiIîÎoOuUûÛhŒœHyY]\w*)>
+replace group 2 with <>
+prescan> <1>
+<d' >
+
+; -----------------------------------------
+rule> <224> 1 ant 1 con <remove superfluous codes>
+search no_border <(@QZ|@QD) *>
+replace group 0 with <>
+prescan> <2>
+<@QZ>
+<@QD>
+
+
+
+
+
+; -----------------------------------------------------------------------------
+[german]
+
+; -----------------------------------------
+; example: Hans @GAPOST Buch  -> Hans' Buch
+; example: HANS @GAPOST Buch  -> HANS' Buch
+; example: Dix  @GAPOST Buch  -> Dix'  Buch
+; example: DIX  @GAPOST Buch  -> DIX'  Buch
+; example: Bläß @GAPOST Buch  -> Bläß' Buch
+; example  Heinz @GAPOST Buch -> Heinz' Buch
+; example  HEINZ @GAPOST BUCH -> HEINZ' Buch
+
+rule> <300> 1 ant 1 con <possesives ending in (s,x,ß)>
+search right_border <[sSxXzZß]( *@GAPOST)>
+replace group 1 with <'>
+prescan> <1>
+<@GAPOST>
+
+; -----------------------------------------
+; example: IBM @GAPOST Computer -> IBMs Computer
+; example: Marie @GAPOST Computer -> Maries Computer
+
+rule> <301> 1 ant 1 con <other possesives>
+search right_border <( *@GAPOST)>
+replace group 1 with <s>
+prescan> <1>
+<@GAPOST>
+
+; -----------------------------------------
+; example: an dem -> am
+
+rule> <302> 1 ant 1 con <contract an + dem>
+search <an +dem>
+replace group 0 with <am>
+prescan> <1>
+<an dem>
+
+; -----------------------------------------
+; example: bei dem -> beim
+
+rule> <303> 1 ant 1 con <contract bei + dem>
+search <bei +dem>
+replace group 0 with <beim>
+prescan> <1>
+<bei dem>
+
+; -----------------------------------------
+; example: in dem -> im
+
+rule> <304> 1 ant 1 con <contract in + dem>
+search <in +dem>
+replace group 0 with <im>
+prescan> <1>
+<in dem>
+
+; -----------------------------------------
+; example: von dem -> vom
+
+rule> <305> 1 ant 1 con <contract von + dem>
+search <von +dem>
+replace group 0 with <vom>
+prescan> <1>
+<von dem>
+
+; -----------------------------------------
+; example: zu dem -> zum
+
+rule> <306> 1 ant 1 con <contract zu + dem>
+search <zu +dem>
+replace group 0 with <zum>
+prescan> <1>
+<zu dem>
+
+; -----------------------------------------
+; example: zu der -> zur
+
+rule> <307> 1 ant 1 con <contract zu + der>
+search <zu +der>
+replace group 0 with <zur>
+prescan> <1>
+<zu der>
+
+; -----------------------------------------
+; example: STRAßE -> STRASSE
+; example: Straße -> <unchanged>
+; example: STRAßENLITFAßSÄULE -> STRASSENLITFASSSÄULE
+; example: straßenlitfaßsäule -> <unchanged>
+; example: ß -> <unchanged>
+
+rule> <308> 1 ant 1 con <convert eszett into double S if word is all upper case - ß first>
+search <(ß)[A-ZÄÖÜß]+>
+replace group 1 with <SS>
+prescan> <1>
+<ß>
+
+rule> <309> 1 ant 1 con <convert eszett into double S if word is all upper case - other>
+search <[A-ZÄÖÜ]+(ß)[A-ZÄÖÜß]*>
+replace group 1 with <SS>
+prescan> <1>
+<ß>
+
+; -----------------------------------------
+; example: , ,, -> ,
+; example: , , , -> ,
+; example: , -> ,
+
+rule> <310> 1 ant 1 con <remove duplicate commas>
+search no_border <(, *)+,>
+replace group 0 with <,>
+;prescan> <> NO PRESCAN FOR NOW
+
+; -----------------------------------------
+rule> <311> 1 ant 1 con <remove extra spaces>
+search no_border <: ( +)>
+replace group 1 with <>
+prescan> <1>
+<:  >
+
+; -----------------------------------------
+rule> <312> 1 ant 1 con <remove superfluous codes>
+search no_border <(@QZ|@QD) *>
+replace group 0 with <>
+prescan> <2>
+<@QZ>
+<@QD>
+
+
+
+
+
+
+; -----------------------------------------------------------------------------
+[italian]
+
+start-non-compare>
+doppio
+doppi
+eccessivo
+eccessiva
+eccessivi
+finale
+finali
+migliore
+migliori
+meglio
+ottimo
+ottima
+ottimi
+ottime
+ottimamente
+peggiore
+peggiori
+peggio
+pessimo
+pessima
+pessimi
+pessime
+inferiore
+inferiori
+inferiormente
+infimo
+infima
+infimi
+infime
+superiore
+superiori
+superiormente
+supremo
+suprema
+supremi
+supreme
+maggiore
+maggiori
+massimo
+massima
+massimi
+massime
+minore
+minori
+minimo
+minima
+minimi
+minime
+minimamente
+posteriore
+posteriori
+posteriormente
+anteriore
+anteriori
+anteriormente
+ulteriore
+ulteriori
+ulteriormente
+primo
+prima
+primi
+prime
+precedente
+precedenti
+precedentmente
+successivo
+successiva
+successivi
+successive
+successivamente
+meno
+più
+ultimo
+ultima
+ultimi
+ultime
+ultimamente
+seguente
+seguenti
+unico
+unica
+unici
+uniche
+unicamente
+end-non-compare>
+
+; -----------------------------------------
+; italian primitives
+;
+; antecedents - group as input, return a boolean
+;
+; -------- partition of prefixes for italian words -------------------
+; starts_vowel:    group starts with a vowel, or h (aeiouàèìòùh)
+; starts_special:  group starts with "z", "y", "ps", "gn", or "sµ" where µ is a consonant
+; starts_normal:   all other cases
+;
+; starts_vowel_or_normal:  combination of first and third cases above
+; starts_vowel_or_special:  combination of first and second cases above
+; is_non_comparitive:   group is in the list of non-comparitive adjectives
+;
+; -----------------------------------------
+
+; -----------------------------------------
+; example: uno qwo amico -> un amico
+; example: nessuno qwo amico -> nessun amico
+; example: buono qwo compagno -> buon compagno
+
+rule> <400> 2 ant 1 con <contraction: uno, buono>
+search <(buo|nessu|u)n(o +qwo) +(\w+)>
+starts_vowel_or_normal 3
+replace group 2 with <>
+prescan> <3>
+<uno qwo>
+<nessuno qwo>
+<buono qwo>
+
+; -----------------------------------------
+; example: una qwa aquila -> un'aquila
+; example: nessuna qwa aquila -> nessun'aquila
+; example: buona qwa amica -> buon'amica
+
+rule> <401> 2 ant 1 con <contraction: una, buona>
+search <(buo|nessu|u)n(a +qwa +)(\w+)>
+starts_vowel 3
+replace group 2 with <'>
+prescan> <3>
+<una qwa>
+<nessuna qwa>
+<buona qwa>
+
+; -----------------------------------------
+; example: bello qwo paese -> bel paese
+
+rule> <402> 2 ant 1 con <contraction: bello c1>
+search <bel(lo +qwo) +(\w+)>
+starts_normal 2
+replace group 1 with <>
+prescan> <1>
+<bello qwo>
+
+; -----------------------------------------
+; example: bello qwo amico -> bell'amico
+; example: bella qwa amica -> bell'amica
+
+rule> <403> 2 ant 1 con <contraction: (bello,bella) vowel>
+search <bell([oa] +qw[oa] +)(\w+)>
+starts_vowel 2
+replace group 1 with <'>
+prescan> <4>
+<bello qwo>
+<bello qwa>
+<bella qwo>
+<bella qwa>
+
+; -----------------------------------------
+; example: belli qwi capelli -> bei capelli
+
+rule> <404> 2 ant 1 con <contraction: belli c1>
+search <be(lli +qwi) +(\w+)>
+starts_normal 2
+replace group 1 with <i>
+prescan> <1>
+<belli qwi>
+
+; -----------------------------------------
+; example: belli qwi amici -> begli amici
+
+rule> <405> 1 ant 1 con <contraction: belli other>
+search <be(lli +qwi) +(\w+)>
+replace group 1 with <gli>
+prescan> <1>
+<belli qwi>
+
+; -----------------------------------------
+; example: San qwo Antonio -> Sant'Antonio
+; example: San qwa Anastasia -> Sant'Anastasia
+
+rule> <406> 2 ant 1 con <contraction: san vowel>
+search <[sS]an( +qw[oa] +)(\w+)>
+starts_vowel 2
+replace group 1 with <t'>
+prescan> <4>
+<San qwo>
+<san qwo>
+<San qwa>
+<san qwa>
+
+; -----------------------------------------
+; example: San qwa Chiara -> Santa Chiara
+
+rule> <407> 1 ant 1 con <contraction: san qwa other>
+search <[sS]an( +qwa) +(\w+)>
+replace group 1 with <ta>
+prescan> <2>
+<San qwa>
+<san qwa>
+
+; -----------------------------------------
+; example: dare @QZ @QD mi  @QD lo -> darmelo
+; example: dare @QZ @QD ti  @QD la -> dartela
+; example: dare @QZ @QD ci  @QD li -> darceli
+; example: dare @QZ @QD vi  @QD le -> darvele
+; example: dare @QZ @QD si  @QD ne -> darsene
+; example: proporre @QZ @QD mi  @QD li -> propormeli
+; example: proporre @QZ @QD ti  @QD le -> proportele
+; example: proporre @QZ @QD ci  @QD lo -> proporcelo
+; example: proporre @QZ @QD vi  @QD la -> proporvela
+; example: proporre @QZ @QD si  @QD ne -> proporsene
+
+; note: cannot search with an expression like \w*r?re since the regular expression
+;       engine does a maximum match on the \w* and will consume the first r
+rule> <408> 1 ant 3 con <-rre @QZ @QD (mi,ti,ci,vi,si) @QD (lo,la,li,le,ne)>
+search right_border <(r?re *@QZ *@QD *)(m|t|c|v|s)(i)( *@QD *)(lo|la|li|le|ne)>
+replace group 4 with <>
+replace group 3 with <e>
+replace group 1 with <r>
+prescan> <2>
+<re @QZ @QD>
+<rre @QZ @QD>
+
+; -----------------------------------------
+; example: dare @QZ @QD gli @QD li -> darglieli
+; example: dare @QZ @QD le  @QD le -> dargliele
+; example: proporre @QZ @QD gli @QD ne -> proporgliene
+; example: proporre @QZ @QD le  @QD lo -> proporglielo
+
+; note: see previous note
+rule> <409> 1 ant 3 con <-rre @QZ @QD (gli,le) @QD (lo,la,li,le,ne)>
+search right_border <(r?re *@QZ *@QD *)(gli|le)( *@QD *)(lo|la|li|le|ne)>
+replace group 3 with <>
+replace group 2 with <glie>
+replace group 1 with <r>
+prescan> <2>
+<re @QZ @QD>
+<rre @QZ @QD>
+
+; -----------------------------------------
+; example: dando @QZ @QD mi  @QD lo -> dandomelo
+; example: dando @QZ @QD ti  @QD la -> dandotela
+; example: dando @QZ @QD ci  @QD li -> dandoceli
+; example: dando @QZ @QD vi  @QD le -> dandovele
+; example: dando @QZ @QD si  @QD ne -> dandosene
+
+rule> <410> 1 ant 3 con <-o @QZ @QD (mi,ti,ci,vi,si) @QD (lo,la,li,le,ne)>
+search <\w*[oe]( *@QZ *@QD *)(m|t|c|v|s)(i)( *@QD *)(lo|la|li|le|ne)>
+replace group 4 with <>
+replace group 3 with <e>
+replace group 1 with <>
+prescan> <2>
+<o @QZ @QD>
+<e @QZ @QD>
+
+; -----------------------------------------
+; example: dando @QZ @QD gli @QD li -> dandoglieli
+; example: dando @QZ @QD le  @QD le -> dandogliele
+
+rule> <411> 1 ant 3 con <-o @QZ @QD (gli,le) @QD (lo,la,li,le,ne)>
+search <\w*[oe]( *@QZ *@QD *)(gli|le)( *@QD *)(lo|la|li|le|ne)>
+replace group 3 with <>
+replace group 2 with <glie>
+replace group 1 with <>
+prescan> <2>
+<o @QZ @QD>
+<e @QZ @QD>
+
+; -----------------------------------------
+; example: dare @QZ @QD mi  -> darmi
+; example: dare @QZ @QD ti  -> darti
+; example: dare @QZ @QD gli -> dargli
+; example: dare @QZ @QD ci  -> darci
+; example: dare @QZ @QD vi  -> darvi
+; example: dare @QZ @QD si  -> darsi
+; example: dare @QZ @QD lo  -> darlo
+; example: dare @QZ @QD la  -> darla
+; example: dare @QZ @QD li  -> darli
+; example: dare @QZ @QD le  -> darle
+; example: dare @QZ @QD ne  -> darne
+; example: proporre @QZ @QD mi  -> propormi
+; example: proporre @QZ @QD ti  -> proporti
+; example: proporre @QZ @QD gli -> proporgli
+; example: proporre @QZ @QD ci  -> proporci
+; example: proporre @QZ @QD vi  -> proporvi
+; example: proporre @QZ @QD si  -> proporsi
+; example: proporre @QZ @QD lo  -> proporlo
+; example: proporre @QZ @QD la  -> proporla
+; example: proporre @QZ @QD li  -> proporli
+; example: proporre @QZ @QD le  -> proporle
+; example: proporre @QZ @QD ne  -> proporne
+
+; note: see previous note
+rule> <412> 1 ant 1 con <-rre @QZ @QD (mi,ti,gli,ci,vi,si,lo,la,li,le,ne)>
+search right_border <(r?re *@QZ *@QD *)(mi|ti|gli|ci|vi|si|lo|la|li|le|ne)>
+replace group 1 with <r>
+prescan> <2>
+<re @QZ @QD>
+<rre @QZ @QD>
+
+; -----------------------------------------
+; example: dando @QZ @QD mi  -> dandomi
+; example: dando @QZ @QD ti  -> dandoti
+; example: dando @QZ @QD gli -> dandogli
+; example: dando @QZ @QD ci  -> dandoci
+; example: dando @QZ @QD vi  -> dandovi
+; example: dando @QZ @QD si  -> dandosi
+; example: dando @QZ @QD lo  -> dandolo
+; example: dando @QZ @QD la  -> dandola
+; example: dando @QZ @QD li  -> dandoli
+; example: dando @QZ @QD le  -> dandole
+; example: dando @QZ @QD ne  -> dandone
+
+rule> <413> 1 ant 1 con <-o @QZ @QD (mi,ti,gli,ci,vi,si,lo,la,li,le,ne)>
+search <\w*[oe]( *@QZ *@QD *)(mi|ti|gli|ci|vi|si|lo|la|li|le|ne)>
+replace group 1 with <>
+prescan> <2>
+<o @QZ @QD>
+<e @QZ @QD>
+
+; -----------------------------------------
+; example: mi @QD lo -> me lo
+; example: ti @QD la -> te la
+; example: si @QD li -> se li
+; example: ci @QD le -> ce le
+; example: vi @QD ne -> ve ne
+
+rule> <414> 1 ant 1 con <(mi,ti,si,ci,vi) @QD (lo,la,li,le,ne)>
+search <[mtscv](i *@QD) *(lo|la|li|le|ne)>
+replace group 1 with <e>
+prescan> <2>
+<i @QD l>
+<i @QD ne>
+
+; -----------------------------------------
+; example: gli @QD lo -> glielo
+; example: le @QD la -> gliela
+; example: gli @QD li -> glieli
+; example: le @QD le -> gliele
+; example: gli @QD ne -> gliene
+
+rule> <415> 1 ant 1 con <(gli,le) @QD (lo,la,li,le,ne)>
+search <((gli|le) *@QD *)(lo|la|li|le|ne)>
+replace group 1 with <glie>
+prescan> <2>
+<gli @QD>
+<le @QD>
+
+; -----------------------------------------
+; example: a il improvviso  -> all'improvviso
+; example: da il albero -> dall'albero
+; example: su il uscio -> sull'uscio
+
+rule> <416> 2 ant 1 con <contraction: (a,da,su) il v>
+search <(a|da|su)( +il +)(\w+)>
+starts_vowel 3
+replace group 2 with <ll'>
+prescan> <3>
+<a il>
+<da il>
+<su il>
+
+; -----------------------------------------
+; example: a il studio -> allo studio
+; example: da il psicologo -> dallo psicologo
+; example: su il stemma -> sullo stemma
+
+rule> <417> 2 ant 1 con <contraction: (a,da,su) il c2>
+search <(a|da|su)( +il) +(\w+)>
+starts_special 3
+replace group 2 with <llo>
+prescan> <3>
+<a il>
+<da il>
+<su il>
+
+; -----------------------------------------
+; example: a il bar -> al bar
+; example: da il socio -> dal socio
+; example: su il posto -> sul posto
+
+rule> <418> 1 ant 1 con <contraction: (a,da,su) il c1>
+search <(a|da|su)( +il) +([^ ]+)>
+replace group 2 with <l>
+prescan> <3>
+<a il>
+<da il>
+<su il>
+
+; -----------------------------------------
+; example: a i bar -> ai bar
+; example: da i soci -> dai soci
+; example: su i posti -> sui posti
+
+rule> <419> 2 ant 1 con <contraction: (a,da,su) i c1>
+search <(a|da|su)( +)i +(\w+)>
+starts_normal 3
+replace group 2 with <>
+prescan> <3>
+<a i>
+<da i>
+<su i>
+
+; -----------------------------------------
+; example: a i amici -> agli amici
+; example: da i ospiti -> dagli ospiti
+; example: su i stranieri -> sugli stranieri
+
+rule> <420> 1 ant 1 con <contraction: (a,da,su) i other>
+search <(a|da|su)( +i) +(\w+)>
+replace group 2 with <gli>
+prescan> <3>
+<a i>
+<da i>
+<su i>
+
+; -----------------------------------------
+; example: a la amica -> all'amica
+; example: da la ora -> dall'ora
+; example: su la entrata -> sull'entrata
+
+rule> <421> 2 ant 1 con <contraction: (a,da,su) la v>
+search <(a|da|su)( +la +)(\w+)>
+starts_vowel 3
+replace group 2 with <ll'>
+prescan> <3>
+<a la>
+<da la>
+<su la>
+
+; -----------------------------------------
+; example: a la scuola -> alla scuola
+; example: da la porta -> dalla porta
+; example: su la credenza -> sulla credenza
+; example: a le macchine -> alle macchine
+; example: da le amiche -> dalle amiche
+; example: su le statue -> sulle statue
+
+rule> <422> 1 ant 1 con <contraction: (a,da,su) (la other - or - le)>
+search <(a|da|su)( +l)[ae]>
+replace group 2 with <ll>
+prescan> <3>
+<a l>
+<da l>
+<su l>
+
+; -----------------------------------------
+; example: di il amico -> dell'amico
+; example: di la amica -> dell'amica
+; this is the old rule -> search <d(i +(il|la) +)(\w+)>
+
+rule> <423> 2 ant 1 con <contraction: di (il,la) v>
+search <d(i +(il|la) +)([^ ]+)>
+starts_vowel 3
+replace group 1 with <ell'>
+prescan> <2>
+<di il>
+<di la>
+
+; -----------------------------------------
+; example: di il studio -> dello studio
+; this is the old rule -> search <d(i +il) +(\w+)>
+
+rule> <424> 2 ant 1 con <contraction: di il c2>
+search <d(i +il) +([^ ]+)>
+starts_special 2
+replace group 1 with <ello>
+prescan> <1>
+<di il>
+
+; -----------------------------------------
+; example: di il bar -> del bar
+; example: di il socio -> del socio
+; this is the old rule -> search <d(i +il) +(\w+)>
+
+rule> <425> 1 ant 1 con <contraction: di il c1>
+search <d(i +il) +([^ ]+)>
+replace group 1 with <el>
+prescan> <1>
+<di il>
+
+; -----------------------------------------
+; example: di i soci -> dei soci
+
+rule> <426> 2 ant 1 con <contraction: di i c1>
+search <d(i +)i +(\w+)>
+starts_normal 2
+replace group 1 with <e>
+prescan> <1>
+<di i>
+
+; -----------------------------------------
+; example: di i amici -> degli amici
+
+rule> <427> 1 ant 1 con <contraction: di i other>
+search <d(i +i) +(\w+)>
+replace group 1 with <egli>
+prescan> <1>
+<di i>
+
+; -----------------------------------------
+; example: di la scuola -> della scuola
+; example: di le scuole -> delle scuole
+
+rule> <428> 1 ant 1 con <contraction: di (la other - or - le)>
+search <d(i +l)[ae]>
+replace group 1 with <ell>
+prescan> <2>
+<di la>
+<di le>
+
+; -----------------------------------------
+; example: in il atrio -> nell'atrio
+; example: in la aula -> nell'aula
+
+rule> <429> 2 ant 1 con <contraction: in (il,la) v>
+search <(in +(il|la) +)(\w+)>
+starts_vowel 3
+replace group 1 with <nell'>
+prescan> <2>
+<in il>
+<in la>
+
+; -----------------------------------------
+; example: in il studio -> nello studio
+
+rule> <430> 2 ant 1 con <contraction: in il c2>
+search <(in +il) +(\w+)>
+starts_special 2
+replace group 1 with <nello>
+prescan> <1>
+<in il>
+
+; -----------------------------------------
+; example: in il bar -> nel bar
+; example: in il socio -> nel socio
+
+rule> <431> 1 ant 1 con <contraction: in il c1>
+search <(in +il) +(\w+)>
+replace group 1 with <nel>
+prescan> <1>
+<in il>
+
+; -----------------------------------------
+; example: in i cinema -> nei cinema
+
+rule> <432> 2 ant 1 con <contraction: in i c1>
+search <(in +)i +(\w+)>
+starts_normal 2
+replace group 1 with <ne>
+prescan> <1>
+<in i>
+
+; -----------------------------------------
+; example: in i alberghi -> negli alberghi
+; example: in i spazi -> negli spazi
+
+rule> <433> 1 ant 1 con <contraction: in i other>
+search <(in +i) +(\w+)>
+replace group 1 with <negli>
+prescan> <1>
+<in i>
+
+; -----------------------------------------
+; example: in la scuola -> nella scuola
+; example: in le scuole -> nelle scuole
+
+rule> <434> 1 ant 1 con <contraction: in (la other - or - le)>
+search <(in +l)[ae]>
+replace group 1 with <nell>
+prescan> <2>
+<in la>
+<in le>
+
+; -----------------------------------------
+; example: quello qd -> quelloqd
+; see later rule that quelloqd -> quello
+
+rule> <435> 1 ant 1 con <contraction: quello qd - special case>
+search <quello( +)qd>
+replace group 1 with <>
+prescan> <1>
+<quello qd>
+
+; -----------------------------------------
+; example: quello cane -> quel cane
+
+rule> <436> 2 ant 1 con <contraction: quello c1>
+search <quel(lo) +(\w+)>
+starts_normal 2
+replace group 1 with <>
+prescan> <1>
+<quello>
+
+; -----------------------------------------
+; example: quelloqd che -> quello che
+
+rule> <437> 1 ant 1 con <quelloqd - special case>
+search <quello(qd)>
+replace group 1 with <>
+prescan> <1>
+<quelloqd>
+
+; -----------------------------------------
+; example: quella amica -> quell'amica
+; example: quello amico -> quell'amico
+
+rule> <438> 2 ant 1 con <contraction: (quello,quella) v>
+search <quell([ao] +)(\w+)>
+starts_vowel 2
+replace group 1 with <'>
+prescan> <2>
+<quella>
+<quello>
+
+; -----------------------------------------
+; example: quelli amici -> quegli amici
+; example: quelli specchi -> quegli specchi
+
+rule> <439> 2 ant 1 con <contraction: quelli (v,c2)>
+search <que(l)li +(\w+)>
+starts_vowel_or_special 2
+replace group 1 with <g>
+prescan> <1>
+<quelli>
+
+; -----------------------------------------
+; example: quelli cani -> quei cani
+
+rule> <440> 1 ant 1 con <contraction: quelli other ie c1>
+search <que(ll)i +(\w+)>
+replace group 1 with <>
+prescan> <1>
+<quelli>
+
+; -----------------------------------------
+; example: ci è -> c'è
+; example: ci era -> c'era
+; example: ci erano -> c'erano
+
+rule> <441> 1 ant 1 con <ci (è,era,erano)>
+search <c(i +)(è|era|erano)>
+replace group 1 with <'>
+prescan> <3>
+<ci è>
+<ci era>
+<ci erano>
+
+; -----------------------------------------
+; example: il amico -> l'amico
+; example: la amica -> l'amica
+; example: il uso -> l'uso
+
+rule> <442> 2 ant 1 con <(il,la) v>
+search <((il|la) +)(\w+)>
+starts_vowel 3
+replace group 1 with <l'>
+prescan> <2>
+<il >
+<la >
+
+; -----------------------------------------
+; example: il stemma -> lo stemma
+
+rule> <443> 2 ant 1 con <il c2>
+search <(il) +(\w+)>
+starts_special 2
+replace group 1 with <lo>
+prescan> <1>
+<il >
+
+; -----------------------------------------
+; example: i amici -> gli amici
+; example: i specchi -> gli specchi
+
+rule> <444> 2 ant 1 con <contraction: quelli (v,c2)>
+search <(i) +(\w+)>
+starts_vowel_or_special 2
+replace group 1 with <gli>
+prescan> <1>
+<i >
+
+; -----------------------------------------
+; example:  sull' attenti ->  sull'attenti
+
+rule> <445> 1 ant 1 con <-l' [aeiouàèìòù]\w*>
+search <\w*(l')( +)([aeiouàèìòù]\w*)>
+replace group 2 with <>
+prescan> <1>
+<l' >
+
+; -----------------------------------------
+; example: @QZ @QD -> <~QZQD~>
+
+rule> <446> 1 ant 1 con < @QZ @QD >
+search right_border <( *)(@QZ *@QD *)>
+replace group 2 with <~QZQD~>
+prescan> <1>
+<@QZ @QD>
+
+; -----------------------------------------
+; example: @QZ @QD qwo qwa qwi qwe -> <nothing>
+
+rule> <447> 1 ant 1 con <remove superfluous codes>
+search no_border <(@QZ|@QD|qw[oaie]) *>
+replace group 0 with <>
+prescan> <6>
+<@QZ>
+<@QD>
+<qwo>
+<qwa>
+<qwi>
+<qwe>
+
+; -----------------------------------------
+; example: il più anteriore -> anteriore
+; example: meno other -> <unchanged>
+
+rule> <448> 2 ant 1 con <fix adjectives that do not have comparitive and superlative forms>
+search <(((il|la|i|le) +)?(più|meno) +)(\w*)>
+is_non_comparitive 5
+replace group 4 with <>
+prescan> <2>
+<più>
+<meno>
+
+
+
+; -----------------------------------------------------------------------------
+[spanish]
+
+; list of spanish adjectives that do not have comparitive and superlative forms
+
+start-non-compare>
+circular
+circulares
+cuadrado
+cuadrada
+cuadrados
+cuadradas
+doble
+dobles
+ecuestre
+ecuestres
+excesivo
+excesiva
+excesivos
+excesivas
+final
+finales
+mayor
+mayores
+mejor
+mejores
+menor
+menores
+menos
+mínimo
+mínima
+mínimos
+mínimas
+peor
+peores
+posterior
+posteriores
+primero
+primera
+primeros
+primeras
+principal
+principales
+redondo
+redonda
+redondos
+redondas
+secundario
+secundaria
+secundarios
+secundarias
+segundario
+segundaria
+segundarios
+segundarias
+suplementario
+suplementaria
+suplementarios
+suplementarias
+terciario
+terciaria
+terciarios
+terciarias
+triple
+triples
+ulterior
+ulteriores
+último
+última
+últimos
+últimas
+único
+única
+únicos
+únicas
+verdadero
+verdadera
+verdaderos
+verdaderas
+end-non-compare>
+
+
+; -----------------------------------------
+; spanish primitives
+;
+; antecedents - group as input, return a boolean
+;
+; has_one_vowel: group has exactly one vowel
+; has_more_than_one_vowel: group has 2 or more vowels
+; has_two_vowels: group has 2 vowels exactly
+; is_non_comparitive: group is in the list of non-comparitive adjectives
+; has_no_accent: group has no accented vowels
+;
+; consequents - group as input, no output
+;
+; accent_last               : accentuate last vowel in the group
+; accent_second_last        : accentuate second last vowel in the group
+; accent_last_max_one       : accentuate last vowel in group unless group already has an accent
+; accent_second_last_max_one: accentuate second last vowel in group unless group already has an accent
+; -----------------------------------------
+
+
+; -----------------------------------------
+; example: dar @QZ @QD me @QD lo -> dármelo
+
+rule> <500> 1 ant 2 con <list B with preceding r>
+search <(\w+r) *@QZ *@QD *(me|te|se|nos) *@QD *(lo|la|las|los)>
+accent_last 1
+replace group 0 with <\1\2\3>
+prescan> <1>
+<r @QZ @QD>
+
+; -----------------------------------------
+; example: dar @QZ @QD lo -> darlo
+
+rule> <501> 1 ant 1 con <list A with preceding r>
+search <(\w+r) *@QZ *@QD *(me|te|le|lo|la|se|nos|les|los|las)>
+replace group 0 with <\1\2>
+prescan> <1>
+<r @QZ @QD>
+
+; -----------------------------------------
+; example: dando @QZ @QD me @QD lo -> dándomelo
+
+rule> <502> 1 ant 2 con <list B with preceding ando or endo>
+search <(\w+(a|e)ndo) *@QZ *@QD *(me|te|se|nos) *@QD *(lo|la|las|los)>
+accent_second_last 1
+replace group 0 with <\1\3\4>
+prescan> <2>
+<ando @QZ @QD>
+<endo @QZ @QD>
+
+; -----------------------------------------
+; example: dando @QZ @QD me -> dándome
+
+rule> <503> 1 ant 2 con <list A with preceding ando or endo>
+search <(\w+(a|e)ndo) *@QZ *@QD *(me|te|le|lo|la|se|nos|les|los|las)>
+accent_second_last 1
+replace group 0 with <\1\3>
+prescan> <2>
+<ando @QZ @QD>
+<endo @QZ @QD>
+
+; -----------------------------------------
+; example: ten @QZ @QD me @QD lo -> ténmelo
+
+rule> <504> 2 ant 2 con <list B other cases - single vowel in preceding word>
+search <(\w+) *@QZ *@QD *(me|te|se|nos) *@QD *(lo|la|las|los)>
+has_one_vowel 1
+accent_last 1
+replace group 0 with <\1\2\3>
+prescan> <4>
+<@QZ @QD me @QD>
+<@QZ @QD te @QD>
+<@QZ @QD se @QD>
+<@QZ @QD nos @QD>
+
+; -----------------------------------------
+; example: ten @QZ @QD lo -> tenlo
+
+rule> <505> 2 ant 1 con <list A other cases - single vowel in preceding word>
+search <(\w+) *@QZ *@QD *(me|te|le|lo|la|se|nos|les|los|las)>
+has_one_vowel 1
+replace group 0 with <\1\2>
+prescan> <5>
+<@QZ @QD me>
+<@QZ @QD te>
+<@QZ @QD se>
+<@QZ @QD nos>
+<@QZ @QD l>
+
+; -----------------------------------------
+; example: manda @QZ @QD me @QD lo -> mándamelo
+; example: envía @QZ @QD me @QD lo -> envíamelo
+
+rule> <506> 2 ant 2 con <list B other cases - multiple vowel in preceding word>
+search <(\w+) *@QZ *@QD *(me|te|se|nos) *@QD *(lo|la|las|los)>
+has_more_than_one_vowel 1
+accent_second_last_max_one 1
+replace group 0 with <\1\2\3>
+prescan> <4>
+<@QZ @QD me @QD>
+<@QZ @QD te @QD>
+<@QZ @QD se @QD>
+<@QZ @QD nos @QD>
+
+; -----------------------------------------
+; example: manda @QZ @QD lo -> mándalo
+; example: envía @QZ @QD lo -> envíalo
+
+rule> <507> 2 ant 2 con <list A other cases - multiple vowel in preceding word>
+search <(\w+) *@QZ *@QD *(me|te|le|lo|la|se|nos|les|los|las)>
+has_more_than_one_vowel 1
+accent_second_last_max_one 1
+replace group 0 with <\1\2>
+prescan> <5>
+<@QZ @QD me>
+<@QZ @QD te>
+<@QZ @QD se>
+<@QZ @QD nos>
+<@QZ @QD l>
+
+; -----------------------------------------
+; example: primero @QZ -> primer
+; example: bueno @QZ -> buen
+; example: tercero @QZ -> tercer
+; example: malo @QZ -> mal
+; example: uno @QZ -> un
+
+rule> <508> 1 ant 1 con <primero,bueno,tercero,malo,uno -- drop suffix>
+search <(primer|buen|tercer|mal|un)(o *@QZ) +(\w+)>
+replace group 2 with <>
+prescan> <5>
+<primero @QZ>
+<bueno @QZ>
+<tercero @QZ>
+<malo @QZ>
+<uno @QZ>
+
+; -----------------------------------------
+; example: santo @QZ -> san
+
+rule> <509> 1 ant 1 con <santo -- drop suffix>
+search <san(to *@QZ) +(\w+)>
+replace group 1 with <>
+prescan> <1>
+<santo @QZ>
+
+; -----------------------------------------
+; example: grande @QZ -> gran
+
+rule> <510> 1 ant 1 con <grande -- drop suffix>
+search <gran(de *@QZ) +(\w+)>
+replace group 1 with <>
+prescan> <1>
+<grande @QZ>
+
+; -----------------------------------------
+; example: con mí -> conmigo
+; example: con sí -> consigo
+
+rule> <511> 1 ant 1 con <elide con with mí or sí and append go>
+search <(con) +(m|s)í>
+replace group 0 with <\1\2igo>
+prescan> <2>
+<con mí>
+<con sí>
+
+; -----------------------------------------
+; gender change: change la to el, una to un, alguna to algún, ninguna to ningún
+; - if the following word starts with á or há
+; - or if the following word starts with a or ha,
+;       and has no stressed vowels
+;       and has 2 vowels in total (including a or ha)
+
+; example: la áb -> el áb
+; example: la háb -> el háb
+; example: la alma -> el alma
+; example: la hacha -> el hacha
+; example: la acción -> <unchanged>
+; example: la accion -> el accion - nonsense word
+; example: la heb -> <unchanged>
+; example: la ella -> <unchanged>
+; example: una áb -> un áb
+; example: una háb -> un háb
+; example: una alma -> un alma
+; example: una hacha -> un hacha
+; example: una heb -> <unchanged>
+; example: una ella -> <unchanged>
+; example: alguna áb -> algún áb
+; example: alguna háb -> algún háb
+; example: alguna alma -> algún alma
+; example: alguna hacha -> algún hacha
+; example: alguna heb -> <unchanged>
+; example: alguna ella -> <unchanged>
+; example: ninguna áb -> ningún áb
+; example: ninguna háb -> ningún háb
+; example: ninguna alma -> ningún alma
+; example: ninguna hacha -> ningún hacha
+; example: ninguna heb -> <unchanged>
+; example: ninguna ella -> <unchanged>
+
+rule> <512> 1 ant 1 con <gender change for la + (á or há)>
+search <(la) +(h|H)?(á|Á)\w*>
+replace group 1 with <el>
+prescan> <6>
+<la á>
+<la Á>
+<la há>
+<la hÁ>
+<la Há>
+<la HÁ>
+
+rule> <513> 3 ant 1 con <gender change for la + (a or ha)>
+search <(la) +((h|H)?(a|A)\w*)>
+has_no_accent 2
+has_two_vowels 2
+replace group 1 with <el>
+prescan> <6>
+<la a>
+<la A>
+<la ha>
+<la hA>
+<la Ha>
+<la HA>
+
+rule> <514> 1 ant 1 con <gender change for una + (á or há)>
+search <(una) +(h|H)?(á|Á)\w*>
+replace group 1 with <un>
+prescan> <6>
+<una á>
+<una Á>
+<una há>
+<una hÁ>
+<una Há>
+<una HÁ>
+
+rule> <515> 3 ant 1 con <gender change for una + (a or ha)>
+search <(una) +((h|H)?(a|A)\w*)>
+has_no_accent 2
+has_two_vowels 2
+replace group 1 with <un>
+prescan> <6>
+<una a>
+<una A>
+<una ha>
+<una hA>
+<una Ha>
+<una HA>
+
+rule> <516> 1 ant 1 con <gender change for (alguna or ninguna) + (á or há)>
+search <((al|nin)guna) +(h|H)?(á|Á)\w*>
+replace group 1 with <\2gún>
+prescan> <6>
+<guna á>
+<guna Á>
+<guna há>
+<guna hÁ>
+<guna Há>
+<guna HÁ>
+
+rule> <517> 3 ant 1 con <gender change for (alguna or ninguna) + (a or ha)>
+search <((al|nin)guna) +((h|H)?(a|A)\w*)>
+has_no_accent 3
+has_two_vowels 3
+replace group 1 with <\2gún>
+prescan> <6>
+<guna a>
+<guna A>
+<guna ha>
+<guna hA>
+<guna Ha>
+<guna HA>
+
+; -----------------------------------------
+; note that @ASPIRE may occur with or without a space after it
+rule> <518> 1 ant 1 con <remove superfluous codes>
+search no_border <@ASPIRE *>
+replace group 0 with <>
+prescan> <1>
+<@ASPIRE>
+
+; -----------------------------------------
+; elision rule - must come after gender change rule
+; example: a el -> al
+; example: de el -> del
+
+rule> <519> 1 ant 1 con <elide a + el>
+search <(a|de) +el>
+replace group 0 with <\1l>
+prescan> <2>
+<a el>
+<de el>
+
+; -----------------------------------------
+; example: federico y isabel -> federico e isabel
+; example: aluminio y hierro -> aluminio y hierro
+; example: editar y imprimir -> editar e imprimir
+; example: aa y bb -> <unchanged>
+
+rule> <520> 1 ant 1 con <change y into e if followed by a word starting with i or hi but not if followed immediately by another vowel>
+search <(y) +(h|H)?(i|I|í|Í)[^aeiouáéíóú]\w*>
+replace group 1 with <e>
+prescan> <6>
+<y h>
+<y H>
+<y i>
+<y I>
+<y í>
+<y Í>
+
+; -----------------------------------------
+; example: uno o otro -> uno u otro
+; example: connexion o órdenes -> connexion u órdenes
+; example: aa o bb -> <unchanged>
+
+rule> <521> 1 ant 1 con <change o into u if followed by a word starting by o or ho>
+;search <\w+ (o) +[hH]?[oOóÓ]\w*>
+search <(o) +[hH]?[oOóÓ]\w*>
+replace group 1 with <u>
+prescan> <6>
+<o h>
+<o H>
+<o o>
+<o O>
+<o ó>
+<o Ó>
+
+; -----------------------------------------
+; example: el más circular -> circular
+; example: las menos junk -> <unchanged>
+
+rule> <522> 2 ant 1 con <fix adjectives that do not have comparitive and superlative forms>
+search <(((el|la|los|las) +)?(más|menos) +)(\w*)>
+is_non_comparitive 5
+replace group 1 with <>
+prescan> <2>
+<más >
+<menos >
+
+; -----------------------------------------
+; example: más más -> más
+; example: mas mas -> <unchanged>
+
+rule> <523> 1 ant 1 con <remove duplicate más>
+search <(más) +más>
+replace group 1 with <>
+prescan> <1>
+<más más>
+
+; -----------------------------------------
+; example: @QZ @QD -> <~QZQD~>
+
+rule> <524> 1 ant 1 con < @QZ @QD >
+search right_border <( *)(@QZ *@QD *)>
+replace group 2 with <~QZQD~>
+prescan> <1>
+<@QZ @QD>
+
+; -----------------------------------------
+; example: @QZ @QD -> <nothing>
+
+rule> <525> 1 ant 1 con <remove superfluous codes>
+search no_border <(@QZ|@QD) *>
+replace group 0 with <>
+prescan> <2>
+<@QZ>
+<@QD>
+
+
+; -----------------------------------------------------------------------------
+; -----------------------------------------------------------------------------
+
+[portuguese]
+; version of May 15, 2001
+; inserted rule numbers Jan 20, 2000
+; list of portuguese adjectives that do not have comparative and superlative forms
+
+start-non-compare>
+bom
+boa
+bons
+boas
+mau
+má
+maus
+más
+grande
+grandes
+maior
+maiores
+melhor
+melhores
+menor
+menores
+menos
+pior
+piores
+end-non-compare>
+; -----------------------------------------
+; Portuguese primitives
+;
+; antecedents - group as input, return a boolean
+;
+; has_one_vowel: group has exactly one vowel
+; has_more_than_one_vowel: group has 2 or more vowels
+; has_two_vowels: group has 2 vowels exactly
+; is_non_comparitive: group is in the list of non-comparitive adjectives
+; has_no_accent: group has no accented vowels
+;
+; consequents - group as input, no output
+;
+; accent_last               : accentuate last vowel in the group
+; accent_second_last        : accentuate second last vowel in the group
+; accent_last_max_one       : accentuate last vowel in group unless group already has an accent
+; accent_second_last_max_one: accentuate second last vowel in group unless group already has an accent
+
+; -----------------------------------------
+; Clitics for future and conditional tenses
+; -----------------------------------------
+; example:  daria -o  -> dá-lo-ia
+
+rule> <600> 1 ant 1 con < list A with preceding r>
+search <(\w+)ar(ei|á|ia|emos|ão|iam|íamos) *-@QD (o|a|os|as)>
+replace group 0 with <\1á-l\3-\2>
+prescan> <7>
+<arei-@QD >
+<ará-@QD >
+<aria-@QD >
+<aremos-@QD >
+<arão-@QD >
+<ariam-@QD >
+<aríamos-@QD >
+;replace group 0 with <\1á-l\3-\2_600_>
+; 600  She would give it to Peter.
+
+rule> <601> 1 ant 1 con < list A with preceding r>
+search <(\w+)er(ei|á|ia|emos|ão|iam|íamos) *-@QD (o|a|os|as)>
+replace group 0 with <\1ê-l\3-\2>
+prescan> <7>
+<erei-@QD >
+<erá-@QD >
+<eria-@QD >
+<eremos-@QD >
+<erão-@QD >
+<eriam-@QD >
+<eríamos-@QD >
+;replace group 0 with <\1ê-l\3-\2_601_>
+; 601  She will see it soon.
+
+rule> <602> 1 ant 1 con < list A with preceding r>
+search <(\w+)ir(ei|á|ia|emos|ão|iam|íamos) *-@QD (o|a|os|as)>
+replace group 0 with <\1i-l\3-\2>
+prescan> <7>
+<irei-@QD >
+<irá-@QD >
+<iria-@QD >
+<iremos-@QD >
+<irão-@QD >
+<iriam-@QD >
+<iríamos-@QD >
+;replace group 0 with <\1i-l\3-\2_602_>
+; 602  He would distribute them.
+; 602  She would split it.
+
+rule> <603> 1 ant 1 con <list A with preceding r>
+search <(\w+)r(ei|á|ia|emos|ámos|ão|iam|íamos) *-@QD (lhe|lhes|me|nos)>
+replace group 0 with <\1r-\3-\2>
+prescan> <8>
+<rei-@QD >
+<rá-@QD >
+<ria-@QD >
+<remos-@QD >
+<rámos-@QD >
+<rão-@QD >
+<riam-@QD >
+<ríamos-@QD >
+;replace group 0 with <\1r-\3-\2_603_>
+; 603  She would give him a book.
+; ?603  We would send them a book.
+
+rule> <654> 1 ant 1 con <list A with preceding r>
+search <(\w+)r(ei|á|ia|emos|ámos|ão|iam|íamos) *@QD (se)>
+replace group 0 with <\1r-\3-\2>
+prescan> <8>
+<rei @QD se>
+<rá @QD se>
+<ria @QD se>
+<remos @QD se>
+<rámos @QD se>
+<rão @QD se>
+<riam @QD se>
+<ríamos @QD se>
+;replace group 0 with <\1r-\3-\2_654_>
+; 654  Any missing values will be counted or averaged in with the rest.
+; 654  In this book these four terms will be used synonymously.
+
+; -----------------------------------------
+; -----------    A        -----------------
+; -----------------------------------------
+
+; example:  a meu -> ao meu
+rule> <646>  1 ant 1 con <elide a + o>
+search no_border < a +(meu|teu|seu|nosso|vosso)(s?)>
+replace group 0 with < ao\2 \1\2 >
+prescan> <5>
+< a meu>
+< a teu>
+< a seu>
+< a nosso>
+< a vosso>
+;replace group 0 with < ao\2 \1\2_646_>
+; 646  I can adapt it to my schedule.
+
+; example:  a minha -> à minha
+; THIS ONE HAS TO BE DONE IN TRAN to know if "a" is art or prep
+;rule> <647>  1 ant 1 con <elide a + o>
+;search no_border < a +(minha|tua|sua|nossa|vossa)(s?)>
+;replace group 0 with < à\2 \1\2 >
+;prescan> <5>
+;< a minha>
+;< a tua>
+;< a sua>
+;< a nossa>
+;< a vossa>
+;replace group 0 with < à\2 \1\2_647_>
+
+
+; example: a o -> ao
+; example: a os -> aos
+
+rule> <604>  1 ant 1 con <elide a + o>
+search no_border < a +o(s?) >
+replace group 0 with < ao\1 >
+prescan> <2>
+< a o >
+< a os >
+;replace group 0 with < ao\1_604_>
+;what about at the beginning of a line?
+; 604  At the sound, John slept for two hours.
+; 604  John slept at the sound for two hours.
+
+; -----------------------------------------
+; example: a a -> à
+; example: a as -> às
+
+rule> <605>  1 ant 1 con <elide a + a>
+search no_border < +a a >
+replace group 0 with < à >
+prescan> <1>
+< a a >
+;indexed in the program to fire unless "QD a a " is found
+;replace group 0 with < à_605_>
+; 605  At one o'clock, John slept for two hours.
+; 605  John slept at one o'clock for two hours.
+
+rule> <606>  1 ant 1 con <elide a + as>
+search no_border < +a as >
+replace group 0 with < às >
+prescan> <1>
+< a as >
+;replace group 0 with < às_606_>
+; 606  At three o'clock, John slept for two hours.
+; 606  John slept at three o'clock for two hours.
+
+; -----------------------------------------
+; example: a aquele -> àquele
+; example: a aquelas -> àquelas
+
+rule> <607>  1 ant 1 con <elide a + aquele>
+search no_border < a a(quel(e|a(s?)))>
+replace group 0 with < à\1>
+prescan> <2>
+< a aquele>
+< a aquela>
+;replace group 0 with < à\1_607_>
+; 607  At that sound, John slept for two hours.
+; 607  John slept at that sound for two hours.
+
+; -----------------------------------------
+; DOUBLE object clitics
+; -----------------------------------------
+
+; example: manda @QZ @QD me @QD o -> manda-mo
+; example: envia @QZ @QD me @QD o -> envia-mo
+
+rule> <608>  1 ant 1 con <elide verb do and io pros>
+search no_border <(\w+) *@QZ *@QD *(m|t|lh|s)e *@QD *(o|a|as|os) >
+replace group 0 with <\1-\2\3 >
+prescan> <4>
+< @QZ @QD me @QD >
+< @QZ @QD te @QD >
+< @QZ @QD lhe @QD >
+< @QZ @QD se @QD >
+;replace group 0 with <\1-\2\3_608_ >
+; 608  Send me it soon.
+; 608  She can send me it later.
+
+; example: lhe o -> lho
+; example: lhe a -> lha
+; BUT  lhe o computador > lho computador
+
+; rule> <609>  1 ant 1 con <elide or + ela/elo>
+; search <lhe +((a|o)s?)>
+; replace group 0 with <lh\1>
+; prescan> <2>
+; <lhe a>
+; <lhe o>
+; replace group 0 with <lh\1_609_>
+
+; -----------------------------------------
+; example: nos o -> no-lo
+; example: nos a -> no-la
+; BUT  nos o computador > no-lo computador
+
+; rule> <610>  1 ant 1 con <elide or + ela/elo>
+; search <nos +((a|o)s?)>
+; replace group 0 with <no-l\1>
+; prescan> <2>
+; <nos a>
+; <nos o>
+; replace group 0 with <no-l\1_610_>
+
+; -----------------------------------------
+;  INdirect object clitics
+; -----------------------------------------
+
+; example: dar @QZ @QD lhe -> dar-lhe
+
+rule> <612>  1 ant 1 con <list A with preceding r>
+search <(\w+(a|e|i)r) +@QZ *@QD *(me|te|lhe|nos|lhes)>
+replace group 0 with <\1-\3>
+prescan> <15>
+<ar @QZ @QD me>
+<ar @QZ @QD te>
+<ar @QZ @QD lhe>
+<ar @QZ @QD nos>
+<ar @QZ @QD lhes>
+<er @QZ @QD me>
+<er @QZ @QD te>
+<er @QZ @QD lhe>
+<er @QZ @QD nos>
+<er @QZ @QD lhes>
+<ir @QZ @QD me>
+<ir @QZ @QD te>
+<ir @QZ @QD lhe>
+<ir @QZ @QD nos>
+<ir @QZ @QD lhes>
+;replace group 0 with <\1-\3_612_>
+; 612  She can give him a present.
+; 612  He can buy them a present.
+
+; -----------------------------------------
+; Direct object clitics
+; -----------------------------------------
+; example: dar @QZ @QD o -> dá-lo
+
+rule> <613> 1 ant 2 con <list A with preceding r>
+search <(\w+a)r *@QZ *@QD *(o|a|os|as)>
+accent_last 1
+replace group 0 with <\1-l\2>
+prescan> <4>
+<ar @QZ @QD o>
+<ar @QZ @QD a>
+<ar @QZ @QD os>
+<ar @QZ @QD as>
+;replace group 0 with <\1-l\2_613_>
+; 613  She can give it to Peter.
+
+; -----------------------------------------
+; example: pôr @QZ @QD o -> pô-lo
+
+rule> <644> 1 ant 1 con <list a with preceding r>
+search <(pô)r *@QZ *@QD *(o|a|os|as)>
+replace group 0 with <\1-l\2>
+prescan> <4>
+<pôr @QZ @QD o>
+<pôr @QZ @QD a>
+<pôr @QZ @QD os>
+<pôr @QZ @QD as>
+;replace group 0 with <\1-l\2_644_>
+; 644  I want to see you put them on the table.
+; 644  I want to see you put the revolver on the table.
+
+; -----------------------------------------
+; example: faz @QZ @QD o -> fá-lo
+
+rule> <645> 1 ant 2 con <list a with preceding r>
+search <(fa)z *@QZ *@QD *(o|a|os|as)>
+accent_last 1
+replace group 0 with <\1-l\2>
+prescan> <4>
+<faz @QZ @QD o>
+<faz @QZ @QD a>
+<faz @QZ @QD os>
+<faz @QZ @QD as>
+;replace group 0 with <\1-l\2_645>
+; 645  He does it often.
+; 645  She does them quickly.
+
+; -----------------------------------------
+; example: ver @QZ @QD o -> vê-lo
+
+rule> <614> 1 ant 1 con <list A with preceding r>
+search <(\w+)er *@QZ *@QD *(o|a|os|as)>
+replace group 0 with <\1ê-l\2>
+prescan> <4>
+<er @QZ @QD o>
+<er @QZ @QD a>
+<er @QZ @QD os>
+<er @QZ @QD as>
+;replace group 0 with <\1ê-l\2_614_>
+; 614  She can see it later.
+
+; -----------------------------------------
+; example: dando @QZ @QD me @QD o -> dando-mo
+
+rule> <615> 1 ant 1 con <list B with preceding ando or endo>
+search <(\w+(a|e)ndo) *@QZ *@QD *(m|t|s|lh)e *@QD *(o|a|as|os)>
+replace group 0 with <\1-\3\4>
+prescan> <8>
+<ando @QZ @QD me @QD >
+<ando @QZ @QD te @QD >
+<ando @QZ @QD se @QD >
+<ando @QZ @QD lhe @QD >
+<endo @QZ @QD me @QD >
+<endo @QZ @QD te @QD >
+<endo @QZ @QD se @QD >
+<endo @QZ @QD lhe @QD >
+;replace group 0 with <\1-\3\4_615_>
+; ?615  He was sending her them.
+
+; -----------------------------------------
+; example: dando @QZ @QD me -> dando-me
+
+rule> <616>  1 ant 1 con <list A with preceding ando or endo>
+search <(\w+(a|e|i)ndo) *@QZ *@QD *(me|te|lhe|o|a|se|nos|lhes|os|as) >
+replace group 0 with <\1-\3 >
+prescan> <3>
+<ando @QZ @QD >
+<endo @QZ @QD >
+<indo @QZ @QD >
+;replace group 0 with <\1-\3_616_>
+; 616  She is sending it to me.
+; 616  They are cutting me some.
+
+; -----------------------------------------
+; example: viram-o -> viram-no
+; example: deram a -> deram-na
+
+rule> <617>  1 ant 1 con <add n to pro after am ending>
+search <(\w+(a|e)m) *-@QD (o|a|os|as)>
+replace group 0 with <\1-n\2>
+prescan> <4>
+<am-@QD a>
+<am-@QD o>
+<em-@QD a>
+<em-@QD o>
+;replace group 0 with <\1-n\2_617_>
+; 617  They saw him yesterday.
+; 617  They found her yesterday.
+
+;older versions:
+;search <(\w+am -)@QD ((a|o)s?)>
+;replace group 0 with <\1n\2>
+;rule> <617>  1 ant 1 con <add n to pro after am ending>
+;search no_border <\w+(am -@QD o)>
+;replace group 0 with <\1-n\2>
+;prescan> <>
+;replace group 1 with <am-no_617_>
+
+; -----------------------------------------
+; example: viramos-nos -> viramo-nos
+; example: damos-nos -> damo-nos
+
+rule> <618>  1 ant 1 con <elide s before nos>
+search <(\w+mo)s *-@QD nos>
+;search <(\w+mo)s -@QD nos >
+replace group 0 with <\1-nos >
+prescan> <1>
+<mos-@QD nos>
+;replace group 0 with <\1-nos_618_ >
+; 618  We dressed ourselves quickly.
+
+; -----------------------------------------
+; example: viramos-os -> viramo-los
+; example: damos-os -> damo-los
+
+rule> <619>  1 ant 1 con <elide s before os>
+search <(\w+mo)s *-@QD (a|o|as|os|lhe|lhes)>
+replace group 0 with <\1-l\2>
+prescan> <4>
+<mos-@QD a>
+<mos-@QD o>
+<mos-@QD as>
+<mos-@QD os>
+;replace group 0 with <\1-l\2_619_>
+; 619  We received them from the company.
+
+; -----------------------------------------
+; example: manda @QZ @QD o -> manda-o
+; example: envia @QZ @QD o -> envia-o
+
+rule> <620>  1 ant 1 con <elide V and do pro>
+search no_border <(\w+)( *@QZ *@QD *)(me|te|lhe|o|a|se|nos|lhes|os|as) >
+replace group 2 with <->
+prescan> <10>
+< @QZ @QD me >
+< @QZ @QD te >
+< @QZ @QD lhe >
+< @QZ @QD o >
+< @QZ @QD a >
+< @QZ @QD se >
+< @QZ @QD nos >
+< @QZ @QD lhes >
+< @QZ @QD os >
+< @QZ @QD as >
+;replace group 2 with <-_620_>
+; Maksim's fix for
+;Refira-seà operação e ao manual de manutenção, ajustamentos de manivela.
+; 620  Send it to the company.
+; 620  Please work with me.
+; 620  She heard it yesterday.
+
+; -----------------------------------------
+;  Prep + article elision
+; -----------------------------------------
+; -----------    COM      -----------------
+; -----------------------------------------
+
+; example: com mim -> comigo
+
+rule> <621>  1 ant 1 con <elide com with me to comigo>
+search <com +mim>
+replace group 0 with <comigo>
+prescan> <1>
+<com mim>
+;replace group 0 with <comigo_621_>
+; 621  With me, you can work.
+; 621  Can you work with me today?
+
+; -----------------------------------------
+; example: com te -> contigo
+
+;rule> <622>  1 ant 1 con <elide com with mí or sí and append go>
+;search <com +te>
+;replace group 0 with <contigo>
+;prescan> <1>
+;<com te>
+;replace group 0 with <contigo_622_>
+
+; -----------------------------------------
+; example: com ele -> consigo
+
+;rule> <623>  1 ant 1 con <elide com with si and append go>
+;search <com +el(e|a(s?))>
+;replace group 0 with <consigo>
+;prescan> <2>
+;<com ele>
+;<com ela>
+;replace group 0 with <consigo_623_>
+
+; -----------------------------------------
+; example: com você -> consigo
+
+rule> <624>  1 ant 1 con <elide com with si and append go>
+search <com +você(s?)>
+replace group 0 with <consigo>
+prescan> <1>
+<com você>
+;replace group 0 with <consigo_624_>
+; 624  I want to go with you.
+; 624  With you, I can work.
+
+; -----------------------------------------
+; example: com nós -> conosco
+; example: com vós -> convosco
+
+rule> <625>  1 ant 1 con <elide com with nós or vós and append go>
+search <com +(n|v)ós>
+replace group 0 with <co\1osco>
+prescan> <2>
+<com nós>
+<com vós>
+;replace group 0 with <co\1osco_625_>
+; 625  With us, you can work.
+; 625  Can you work with us today?
+
+; -----------------------------------------
+; -----------    DE       -----------------
+; -----------------------------------------
+; example:  de meu -> do meu
+rule> <648>  1 ant 1 con <elide de + o>
+search no_border < de +(meu|teu|seu|nosso|vosso)(s?)>
+replace group 0 with < do\2 \1\2 >
+prescan> <5>
+< de meu>
+< de teu>
+< de seu>
+< de nosso>
+< de vosso>
+;replace group 0 with < do\2 \1\2 _648_>
+; 648  I got it from my brother.
+
+; example:  de minha -> da minha
+rule> <649>  1 ant 1 con <elide de + o>
+search no_border < de +(minha|tua|sua|nossa|vossa)(s?)>
+replace group 0 with < da\2 \1\2 >
+prescan> <5>
+< de minha>
+< de tua>
+< de sua>
+< de nossa>
+< de vossa>
+;replace group 0 with < da\2 \1\2 _649_>
+; 649  I got it from my sister.
+
+; example: de o -> do
+; example: de os -> dos
+
+rule> <626>  1 ant 1 con <elide de + o>
+search <de +(os?|um|uns)>
+replace group 0 with <d\1>
+prescan> <4>
+<de o>
+<de os>
+<de um>
+<de uns>
+;replace group 0 with <d\1_626_>
+; 626  They came from the professor.
+; 626  The first book of the year was red.
+
+; -----------------------------------------
+
+; example: de a -> da
+; example: de as -> das
+
+rule> <627>  1 ant 1 con <elide de + a>
+search <de +(as?|umas?)>
+replace group 0 with <d\1>
+prescan> <4>
+<de a>
+<de as>
+<de uma>
+<de umas>
+;replace group 0 with <d\1_627_>
+; 627  The first book of the woman was red.
+; 627  They came from the company.
+; -----------------------------------------
+
+; example: de ela -> dela
+; example: de eles -> deles
+
+rule> <628>  1 ant 1 con <elide de + ela>
+search <de +(el(e|a)s?)>
+replace group 0 with <d\1>
+prescan> <2>
+<de ele>
+<de ela>
+;replace group 0 with <d\1_628_>
+; 628  They came from her.
+; 628  They bought things from him.
+
+; -----------------------------------------
+
+; example: de esta -> desta
+; example: de essas -> dessas
+
+rule> <629>  1 ant 1 con <elide de + esta>
+search <de +(es(t|s)(e|a)s?)>
+replace group 0 with <d\1>
+prescan> <4>
+<de este>
+<de esse>
+<de esta>
+<de essa>
+;replace group 0 with <d\1_629_>
+; 629  They came from this company.
+; 629  The first book of this year was red.
+
+; -----------------------------------------
+
+; example: de aquela -> daquela
+; example: de aquelas -> daquelas
+
+rule> <630>  1 ant 1 con <elide de + aquela>
+search <de +(aquel(e|a)s?)>
+replace group 0 with <d\1>
+prescan> <2>
+<de aquele>
+<de aquela>
+;replace group 0 with <d\1_630_>
+; 630  They came from that company.
+; 630  The first book of that year was red.
+
+; -----------------------------------------
+
+; example: de outra -> doutra
+; example: de outras -> doutras
+
+rule> <631>  1 ant 1 con <elide de + outro>
+search <de +(outr(o|a)s?)>
+replace group 0 with <d\1>
+prescan> <2>
+<de outro>
+<de outra>
+;replace group 0 with <d\1_631_>
+; 631  They came from other companies.
+; 631  The first book of other years was red.
+
+; -----------------------------------------
+; -----------    EM       -----------------
+; -----------------------------------------
+; example: em meu -> no meu
+rule> <650>  1 ant 1 con <elide a + o>
+search no_border < em +(meu|teu|seu|nosso|vosso)(s?)>
+replace group 0 with < no\2 \1\2 >
+prescan> <5>
+< em meu>
+< em teu>
+< em seu>
+< em nosso>
+< em vosso>
+;replace group 0 with < no\2 \1\2 _650_>
+; 650  I put the book on my car.
+; 650  I put the books on their cars.
+
+; example:  em minha -> na minha
+rule> <651>  1 ant 1 con <elide a + o>
+search no_border < em +(minha|tua|sua|nossa|vossa)(s?)>
+replace group 0 with < na\2 \1\2 >
+prescan> <5>
+< em minha>
+< em tua>
+< em sua>
+< em nossa>
+< em vossa>
+;replace group 0 with < na\2 \1\2 _651_>
+; 651  I put the book on his table.
+; 651  I put the books on her tables.
+
+; example: em a -> na   (em as > nas)
+; example: em o -> no   (em os > nos)
+
+rule> <632>  1 ant 1 con <elide em + a/o>
+search <em +((a|o)s?|uma?|uns|umas)>
+replace group 0 with <n\1>
+prescan> <8>
+<em a>
+<em as>
+<em o>
+<em os>
+<em um>
+<em uma>
+<em uns>
+<em umas>
+;replace group 0 with <n\1_632_>
+; 632  They put the book in the box.
+; 632  He left the keys in the car.
+
+; -----------------------------------------
+; example: em esta -> nesta
+; example: em este -> neste
+
+rule> <633>  1 ant 1 con <elide em + a/o>
+search <em +(es(s|t)(a|e)s?)>
+replace group 0 with <n\1>
+prescan> <4>
+<em essa>
+<em esta>
+<em esse>
+<em este>
+;replace group 0 with <n\1_633_>
+; 633  They put the book in this box.
+; 633  He left the keys in this car.
+
+; -----------------------------------------
+
+; example: em aquela -> naquela
+; example: em aquelas -> naquelas
+
+rule> <634>  1 ant 1 con <elide em + aquela>
+search no_border < em +(aquel(e|a)s?)>
+replace group 0 with < n\1>
+prescan> <2>
+< em aquele>
+< em aquela>
+;replace group 0 with < n\1_634_>
+; 634  They put the book in that box.
+; 634  He left the keys in that car.
+
+; -----------------------------------------
+
+; example: em outra -> noutra
+; example: em outras -> noutras
+
+rule> <635>  1 ant 1 con <elide em + outro>
+search <em +(outr(o|a)s?)>
+replace group 0 with <n\1>
+prescan> <2>
+<em outro>
+<em outra>
+;replace group 0 with <n\1_635_>
+; 635  They put the book in another box.
+; 635  He left the keys in another car.
+
+; -----------------------------------------
+; -----------    POR      -----------------
+; -----------------------------------------
+; example:  por meu -> pelo meu
+rule> <652>  1 ant 1 con <elide a + o>
+search no_border < por +(meu|teu|seu|nosso|vosso)(s?)>
+replace group 0 with < pelo\2 \1\2 >
+prescan> <5>
+< por meu>
+< por teu>
+< por seu>
+< por nosso>
+< por vosso>
+;replace group 0 with < pelo\2 \1\2 _652_>
+; 652  The woman was seen by my brother.
+; 652  The cars were sold by my father.
+
+; example:  por minha -> pela minha
+rule> <653>  1 ant 1 con <elide a + o>
+search no_border < por +(minha|tua|sua|nossa|vossa)(s?)>
+replace group 0 with < pela\2 \1\2 >
+prescan> <5>
+< por minha>
+< por tua>
+< por sua>
+< por nossa>
+< por vossa>
+;replace group 0 with < pela\2 \1\2 _653_ >
+; 653  The woman was seen by my mother.
+; 653  The cars were sold by my sisters.
+
+; example: por a -> pela
+; example: por o -> pelo
+
+rule> <636>  1 ant 1 con <elide or + ela/elo>
+search <por +((a|o)s?)>
+replace group 0 with <pel\1>
+prescan> <2>
+<por a>
+<por o>
+;replace group 0 with <pel\1_636_>
+; 636  They entered by the door.
+; 636  He was seen by the women.
+
+; -----------------------------------------
+; Other
+; -----------------------------------------
+
+; example: mais melhor -> melhor
+
+rule> <642> 2 ant 1 con <fix adjectives that do not have comparative and superlative forms>
+search <(mais +)(\w*)>
+is_non_comparitive 2
+replace group 0 with <\2>
+prescan> <1>
+<mais >
+;replace group 0 with <\2_642_>
+; 642  They have a better job now.
+; 642  These houses are better than the apartments.
+; 642  She is better than the previous secretary.
+
+; example: menos bom -> <bom>
+
+rule> <643> 2 ant 1 con <fix adjectives that do not have comparative and superlative forms>
+search <(menos +)(\w*)>
+is_non_comparitive 2
+replace group 0 with <\2>
+prescan> <1>
+<menos >
+;replace group 0 with <\2_643_>
+; 643  This house is worse than the other one.
+; 643  This apartment is smaller than her closet.
+
+; example: mais mais -> mais
+; example: mas mas -> <unchanged>
+
+rule> <637>  1 ant 1 con <remove duplicate mais>
+search <mais +mais>
+replace group 0 with <mais>
+prescan> <1>
+<mais mais>
+;replace group 0 with <mais_637_>
+; 637  This apartment is bigger than her closet.
+
+; example: dar @QZ @QD me @QD o -> dar-mo
+
+;rule> <638>  1 ant 1 con <list B with preceding r>
+;search no_border <(\w+r) *@QZ *@QD *(m|t|s|lh)e *@QD *(o|a|as|os) >
+;replace group 0 with <\1-\2\3 >
+;prescan> <4>
+;<r @QZ @QD me @QD >
+;<r @QZ @QD te @QD >
+;<r @QZ @QD se @QD >
+;<r @QZ @QD lhe @QD >
+;replace group 0 with <\1-\2\3_638_ >
+
+; -----------------------------------------
+; Special characters
+; -----------------------------------------
+
+; example: @QZ @QD -> <~QZQD~>
+
+rule> <639>  1 ant 1 con < @QZ @QD >
+search <( *@QZ *@QD *)>
+replace group 1 with <~QZQD~>
+prescan> <1>
+<@QZ @QD>
+;replace group 1 with <~QZQD~_639_>
+
+; -----------------------------------------
+; example: @QZ @QD -> <nothing>
+
+rule> <640>  1 ant 1 con <remove superfluous codes>
+search no_border <(@QZ|@QD) *>
+replace group 0 with < >
+prescan> <2>
+<@QZ>
+<@QD>
+
+;@QDreplace group 0 with <_[]_640_>
+
+;; last used rule number:  654
+; -----------------------------------------   END of Portuguese

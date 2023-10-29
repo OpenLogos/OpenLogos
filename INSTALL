@@ -1,0 +1,155 @@
+OpenLogos Installation Instructions
+
+System Requirements
+------------------- 
+
+- unixODBC 2.2.11 (including -devel packages)
+- PostgreSQL 8.0 or newer
+- PostgreSQL ODBC driver psqlodb-8.00.0102 or newer
+- gcc/g++ 3.2.2 or better, including gcc/g++ 4 up to 4.1.1
+
+only needed when build completely from scratch:
+- automake 1.9.1
+- autoconf 2.59
+- libtool 1.5
+or newer revisions of these tools.
+
+The current version was tested on SuSE linux 9.2, Fedora Core 4 to 6
+
+Installation and building of the code base
+------------------------------------------
+
+Unpacking the OpenLogos distribution archive creates a subdirectory
+openlogos-$VERSION. In this directory, do
+
+./configure
+make
+make install
+
+For 'configure' probably you have to set the path to your Java installation:
+
+./configure --with-java=<Your_$JAVA_HOME> 
+
+For other options see 'configure --help'.
+
+
+If you use a fresh CVS version, first execute the following commands:
+
+aclocal
+libtoolize --force
+automake -a
+autoconf
+
+Installation of the OpenLogos database
+--------------------------------------
+
+Most data of the OpenLogos system are kept in a database. OpenLogos uses
+PostgreSQL 8.0 (tested are PostgreSQL 8.02 and 8.03 on Linux and Windows). The
+database is distributed as a a dump file 'pg_esense.dump'. This file is
+in PostgreSQL binary format as created by the '-f c' option to pg_dump. So you
+can use 'pg_restore' to create the OpenLogos database. It is important that the
+cluster where the database is created was initialized without any locale. The
+'--locale=C' option to 'initdb' can be used to create such a cluster. Otherwise
+their might be problems with uniqueness and primary key constraints or with
+building indexes.
+
+The following steps can be used to create the OpenLogos in PostgreSQL.
+
+1. Create the database:
+
+createdb -E LATIN1 ESENSE
+
+2. Create as database superuser the 'plpgsql' language for functions if not
+done by default:
+
+createlang -d ESENSE plpgsql
+
+3. Restore the database from the dumpfile:
+
+pg_restore -O -x -d ESENSE <DUMPFILE>
+
+Their might be some initial error and warning messages from PostgreSQL that
+some functions etc. already exist, because PostgreSQL includes in the dump some
+system stuff. One can ignore these.
+
+To use the database with OpenLogos you must configure your ODBC system for the
+ESENSE database. An example odbc.ini configuration file is included in the
+'doc' directory. The access data must match those specified in the
+'server.properties' file in the $LGS_ROOT/bin directory. This information must
+be either in the global /etc/odbc.ini, or in the file .odbc.ini in your home
+qdirectory.
+
+
+Using OpenLogos via starter script
+----------------------------------
+
+The starter script `openlogos', which is installed into the bin subdirectory of
+the install root directory, can be used to start OpenLogos in a simple way.
+The directory `testapi' in the distribution directory source tree contains an
+example of how to run OpenLogos with this starter script. If OpenLogos was
+installed into a non-default position, you have to adapt the path in the
+testapi/testolgs.sh script appropriately
+
+The openlogos starter script itself has to be called with three arguments:
+
+openlogos <apitest-settings-file> <scratch-file-directory> <log-file-name>
+
+In the apitest_settings.txt, the source and target language can be specified,
+as well as the name of the file to be translated and various other options.
+
+Source and target language are selected by putting a hash mark `#' in front of
+the respective language token.
+
+If libraries needed by OpenLogos, especially libodbcpsql, are not in default
+locations where the loader can find them, it may be necessary to adapt the 
+LD_LIBRARY_PATH variable in the openlogos starter script in such a way that it
+also contains the path to the required library.
+
+Strange enough, succeessful completion of a translation job is accompanied by
+an apparent error message about copying the result file. One can safely ignore
+this. It is the "normal" behaviour of the original.
+
+
+Settings for using the OpenLogos Environment directly
+-----------------------------------------------------
+
+To use the OpenLogos system, some environment variables need to be configured.
+
+1. the environment variable LGS_ROOT must be set to the OpenLogos installation
+directory, e.g.
+
+export LGS_ROOT=/usr/local/OpenLogos
+
+2. the PATH variable must include the 'bin' directory:
+
+export PATH=$LGS_ROOT/bin:$PATH
+
+3. the LD_LIBRARY_PATH variable must include the 'lib' directory
+
+export LD_LIBRARY_PATH=$LGS_ROOT/lib
+
+Using OpenLogos
+---------------
+
+OpenLogos can be used through the program 'APITest' in the 'bin' directory (the
+only way to use OpenLogos at present). It is called by
+
+APITest <settings_file> <output_dir> <log_file>
+
+The 'settings_file' is a file containing parameter settings for the translation
+engine. 'output_dir' is the directory where the result files will be stored,
+and 'log_file' gives the name of a file for log messages.
+
+An example 'settings_file' is included in the distribution as
+'apitest_settings.txt'. 
+
+Documentation
+----------------
+At present, there is not much reliable official documentation for the OpenLogos
+code base of the runtime system.
+The 'doc' directory provides a description of the official API and of the API
+parameters as well as a template for a settings file for the APITest program.
+
+Other parts of the old Logos documentation will be made available through the
+OpenLogos web site after review with respect to its usability.
+

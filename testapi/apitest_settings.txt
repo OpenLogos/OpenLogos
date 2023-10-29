@@ -1,0 +1,39 @@
+OPERATION_TYPE;#TRANSLATE_DOC;TRANSLATE_TEXT;TERM_SEARCH_DOC;TERM_SEARCH_TEXT;QRY_PROPERTIES;;invalid
+INPUT_FILE;#./apitest.input;
+SOURCE_LANGUAGE;ENG;#GER;;invalid
+TARGET_LANGUAGE;#ENG;GER;FRE;SPA;ITA;POR;;invalid
+INPUT_FORMAT;#LGS_TXT_EXCHANGE;;invalid
+PROTECTION_CHAR;#@;;invalid
+SOURCE_LOCALE;#.,/:.mdy;,./:.dmy;;invalid
+TARGET_LOCALE;#,./:.dmy;.,/:.mdy;;invalid
+DB_MODE;#Yes;No;;invalid
+PM_RULES;Yes;#No;;invalid
+EXTENDED_SEARCH;REG_SRCH;#EXT_SRCH;;invalid
+SUBJECT_MATTER_CODES;#001;003161;Returned value;;invalid
+COMPANY_CODES;#LOG;ABC;LOG ABC SEW;Returned value;;invalid
+FLAG_UNFOUND_WORDS;Yes;#No;;invalid
+TARGET_FORM_IMPERATIVE;#Yes;No;;invalid
+GENERATE_ALIGNMENT;Yes;No;;invalid;;;;
+DIAG_LEVEL;Short;Long;Deep;;invalid;;;
+DIAG_LINE_START;1;10;;invalid;;;;
+DIAG_LINE_END;1;100000;;invalid;;;;
+RULE_OVERRIDE_FILE_NAME;VALIDFILE.ini;;invalid;;;;;
+SENTENCE_COUNT;Returned value;;;;;;;
+WORD_COUNT;Returned value;;;;;;;
+TRANSLATED_FILE;Returned value;;;;;;;
+SESSION_ID;Returned value;;;;;;;
+ERROR_DESC;Returned value;;;;;;;
+ALIGNMENT_FILE;Returned value;;;;;;;
+DIAG_FILE;Returned value;;;;;;;
+INPUT_TEXT;#Tippen Sie Ihren Text hier ein.;;
+TRANSLATED_TEXT;Returned value;;;;;;;
+DIAG_TEXT;Returned value;;;;;;;
+ALIGNED_TEXT;Returned value;;;;;;;
+WORD_SEARCH_OPTIONS;UNFOUND;FOUND_NOUN;UNFOUND+FOUND_NOUN+FOUND_VERB+FOUND_ADJ+FOUND_ADV;;invalid
+WORD_SEARCH_FOUND_START;1;2;;invalid
+WORD_SEARCH_FOUND_LIMIT;1;2;;invalid
+WORD_SEARCH_UNFOUND_START;1;2;;invalid
+WORD_SEARCH_UNFOUND_LIMIT;1;2;;invalid
+STATISTICS;Yes;#No
+DEBUG_FLAG;Yes;#No
+

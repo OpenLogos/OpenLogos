@@ -1,0 +1,139 @@
+Information regarding connectors for halfnouns
+----------------------------------------------
+
+Note: In the following we use pat for the pat_number column
+      and stem for stem_number or source_stem_number columns.
+      Description fields on tables are omitted.
+
+We will determine possible connectors from information
+stored in the following areas. It is assumed words are normalized
+ie in lower case with eszett replaced by "ss" - but the un-normalized
+form of the word is also stored.
+
+There is a general restriction that if a word already ends in a
+connector, then that connector is invalid. For the "s" connector
+a word may not end in 's', 'x', 'z', or 'sch'. This overrides
+any rules below.
+
+For stored half-nouns, or either of the aritmetic types or if either the
+pat or stem is null (remapped to 0) no connector is allowed.
+
+For verbs, nouns or adjectives apply the following rules in order.
+Only verbs, adjectives or nouns should be entered in the tables.
+
+1. Search at the morphology level (in the halfnoun_morphology_connector
+   table).
+
+   The halfnoun_morphology_connector table has the following layout:
+
+   column-name(s)            type
+   --------------            ----
+   language_code             char[2]
+   word                      string
+   pat_number                int     = number
+   source_stem_number        int     = number
+   no_connector              boolean = char[1]
+   s_connector               boolean = char[1]
+   es_connector              boolean = char[1]
+   er_connector              boolean = char[1]
+   en_connector              boolean = char[1]
+   n_connector               boolean = char[1]
+   nen_connector             boolean = char[1]
+   e_connector               boolean = char[1]
+
+  The word/pat/stem is the primary key for this table. company_code is
+  always 'LOG' for these items.
+  Given a key we get a list of boolean flags for the connectors. If a
+  flag is set for a connector that connector will apply for the word.
+  The no_connector flag means that it is allowed to have no connector.
+
+  Note: At least one flag must be set to true (due to the no_connector
+  meaning).
+
+  Note: the list of connectors is fixed in the table. If a new connector
+  needs to be added the table layout will need to be changed - and of
+  course a programmatic change will need to occur as well. This applies
+  to all similar tables and is intentional.
+
+2. If not found above, search at the word level (in the .ini file).
+
+   If a word ends in a string in the "s_connector_list"
+   and the word does not end in a string in the
+   "s_connector_exception" list then that word will
+   take an "s" connector or no connector.
+
+   If a word ends in a string in the "no_connector_list"
+   and the word does not end in a string in the
+   "no_connector_exception" list then that word will not
+   take any connectors.
+
+3. If not found above, search at the pat/stem/last_letter level
+   (in the halfnoun_pat_stem and halfnoun_letter_group tables).
+
+   The halfnoun_letter_group table has the following layout:
+
+   column-name(s)            type
+   --------------            ----
+   letter_group_id           int = number
+   letters                   string
+
+   The primary key is the letter_group_id. Each row represents a group
+   of letters which are referred to in the halfnoun_pat_stem table.
+
+   The halfnoun_pat_stem table has the following layout.
+
+   column-name(s)            type
+   --------------            ----
+   language_code             char[2]
+   pat_number                int     = number
+   source_stem_number        int     = number
+   letter_group_id           int     = number
+   no_connector              boolean = char[1]
+   s_connector               boolean = char[1]
+   es_connector              boolean = char[1]
+   er_connector              boolean = char[1]
+   en_connector              boolean = char[1]
+   n_connector               boolean = char[1]
+   nen_connector             boolean = char[1]
+   e_connector               boolean = char[1]
+
+   The letter_group_id is a foreign key to the letter_group table.
+   The language_code/pat/stem/letter_group_id form the primary key on
+   this table. We restrict to language code for German.
+
+   Given a pat/stem combination and the last letter of a word
+   (in lowercase), we can lookup the pat/stem/last-letter in the join of
+   this table with the letter_group table. We get a list of boolean flags
+   for the connectors. Proceed as per halfnoun_morphology_connector table.
+
+4. If not found above, search at the pat/stem level
+   (in the halfnoun_pat_stem_default table).
+
+   The halfnoun_pat_stem_default table has the following layout:
+
+   column-name(s)            type
+   --------------            ----
+   language_code             char[2]
+   pat_number                int     = number
+   source_stem_number        int     = number
+   no_connector              boolean = char[1]
+   s_connector               boolean = char[1]
+   es_connector              boolean = char[1]
+   er_connector              boolean = char[1]
+   en_connector              boolean = char[1]
+   n_connector               boolean = char[1]
+   nen_connector             boolean = char[1]
+   e_connector               boolean = char[1]
+
+   The language_code/pat/stem form the primary key on this table.
+   We restrict to language code for German.
+   Given a pat/stem combination we get a list of boolean flags for
+   the connectors. Proceed as per halfnoun_morphology_connector table.
+
+5. If not found above, use the following defaults:
+
+   verbs:             "e" connector or no-connector
+   others:            all connectors including no-connector
+                                     excluding e-connector
+                                     excluding nen-connector
+

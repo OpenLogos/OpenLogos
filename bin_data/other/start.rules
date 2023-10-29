@@ -1,0 +1,705 @@
+; conventions:
+;    There are a number of user parameters listed below - these are locale specific
+;
+;    The sequence `key` defines a macro expression for the following keys
+;    NB: These should only be used outside of regular expression lists,
+;        ie not between "[]" characters.
+;
+;        `(`, `.`, and `)` represent quoted characters: "\(", "\.", and "\)"
+;        `dec_sep` denotes the decimal separator character
+;            defaults are "." for English and "," for German
+;        `thou_sep` denotes the thousand separator character
+;            defaults are "," for English and "." for German
+;            spaces may also be included eg " " or ", " or ". "
+;        `date_sep` denotes the date separator
+;            defaults are "/" for English and "." for German
+;        `time_sep` denotes the time separator
+;            defaults are ":" for English and German
+;        `time_dec_sep` denotes the decimal separator in times
+;            defaults are "." for English and German
+;        `ord_suffix` denotes allowed suffixes at end of numbers.
+;            English: st|nd|rd|th
+;            German: er|ers|ern|erin|erinnen|stel|stels|steln|fach|facher|faches|fachem|fachen|
+;                    \w*ig|\w*ige|\w*igen|\w*iger|\w*iges|%ig
+;            note that the German suffix mal is included in numeric units
+;        `time_suffix` denotes allowed suffixes at end of times.
+;            English: am|AM|pm|PM
+;            German: <none>
+;
+;    We use the regular expression character classes in the regular expressions below.
+;
+;    Our version of the regular expression code adds the [:symbol:] character class
+;        to match any symbol - see the file <logos_libs/regex/CharUtil.h> file for details
+;        of the character classes.
+;
+;        The symbols [:alpha:], [:alnum:] and  [:punct:] are non-standard - since
+;        our definition of alphas and punctuation is not the same as the "C" definition
+;        - see the file <logos_libs/regex/CharUtil.h> file for details of the character classes.
+;
+;
+; For the examples below we assume the English defaults for these in most cases
+;
+; Format of a rule:
+;     begins with rule line:   rule> <description>
+;     search line:             search borders <search-identifier> <search-regular-expression>
+; The rule description can be empty.
+; The borders word can be empty (default - both borders), or be left_border, right_border, no_border.
+; The search-identifier must be non-empty and match an identifier in factory.cpp
+; The search-regular-expression must be non-empty, and can be spread over more than
+; one line with continauation characters: '\'.
+
+;---------------------------------------
+; Paired single hyphens with spaces on either side
+; eg - this is a test for -
+; eg - left dash %$ , followed by right dash! -
+
+rule> <pairedfloatingsinglehyphens1>
+search no_border <pairedfloatingsinglehyphens1> <\
+( (-) [^!?.:|]* (-) [^!?.:|]* (-) )\
+>
+
+;---------------------------------------
+; One paired single hyphens with spaces on either side
+; eg - this is a test for -
+; eg - left dash %$ , followed by right dash! -
+
+rule> <pairedfloatingsinglehyphens2>
+search no_border <pairedfloatingsinglehyphens2> <\
+( (-) [^!?.:|]+ (-) )\
+>
+
+;---------------------------------------
+; Paired multiple hyphens with spaces on either side
+; eg -- this is a test for --
+; eg -- left dash %$ , followed by right dash! --
+
+rule> <pairedfloatingmultiplehyphens1>
+search no_border <pairedfloatingmultiplehyphens1> <\
+( (---*) [^!?.:|]* (---*) [^!?.:|]* (---*) )\
+>
+
+;---------------------------------------
+; One paired multiple hyphens with spaces on either side
+; eg -- this is a test for --
+; eg -- left dash %$ , followed by right dash! --
+
+rule> <pairedfloatingmultiplehyphens2>
+search no_border <pairedfloatingmultiplehyphens2> <\
+( (---*) [^!?.:|]+ (---*) )\
+>
+
+;---------------------------------------
+; Paired hyphens embedded between words
+; eg--this is a test for--
+
+rule> <pairedembeddedhyphens>
+search no_border <pairedembeddedhyphens> <\
+([^- ](---*)[^!?.:|]+(---*)[^!?.:|]+(---*)[^- ])|\
+([^- ](---*)[^!?.:|]+(---*)[^- ])\
+>
+
+;---------------------------------------
+; Sequence of hyphens not paired.
+; eg this---is a test
+; eg this - is a test
+
+; hypensequence rule split to speed up processing
+;rule> <hyphensequence>
+;search no_border <hyphensequence> <\
+;( (--*) )|\
+;([^- ](---*)[^- ])|\
+;((---*) )|\
+;((---*)[^- ])\
+;>
+rule> <hyphensequence>
+search no_border <hyphensequence> <\
+( (--*) )\
+>
+rule> <hyphensequence>
+search no_border <hyphensequence> <\
+([^- ](---*)[^- ])\
+>
+rule> <hyphensequence>
+search no_border <hyphensequence> <\
+((---*) )\
+>
+rule> <hyphensequence>
+search no_border <hyphensequence> <\
+((---*)[^- ])\
+>
+
+;---------------------------------------
+; Paired hiphens
+; eg - this is a test for -
+; eg - left dash %$ , followed by right dash! -
+
+;rule> <pairedhiphens>
+;search no_border <pairedhiphens> <\
+;((--+)\
+;(([^-!?.:|]{1}[^!?.:|]*)[^-!?.:|]{1}\
+;(--+))?)|\
+;( +(-)\
+;([^-!?.:|]{1}[^!?.:|]*)\
+;[^-!?.:|]{1}(-))|\
+;( +(-)[^-!?.:|]{1}(-))\
+;>
+
+
+;---------------------------------------
+; eg i.
+; eg iv.
+; eg ix.
+; eg (ix.)
+; eg ix.)
+; eg (v)
+
+rule> <roman outline at BOS>
+search right_border <outline_roman_BOS> <\
+(^`(`?)\
+([ixv]{1,5})\
+(`.`?)\
+(`)`?)\
+>
+
+;---------------------------------------
+; eg I.
+; eg IV.
+; eg IX.
+; eg (IX.)
+; eg IX.)
+; eg (V)
+
+rule> <roman capital outline at BOS>
+search right_border <outline_roman_cap_BOS> <\
+(^`(`?)\
+([IXV]{1,5})\
+(`.`?)\
+(`)`?)\
+>
+
+;---------------------------------------
+; eg 201-876-4534
+; eg 35-2345-5467
+
+rule> <multi_hyphenated>
+search <multi_hyphenated> <\
+([[:digit:]]+-|`(`[[:digit:]]+`)`([ |-])?)\
+([[:digit:]]+)\
+(-[[:digit:]]+)+\
+>
+
+;---------------------------------------
+; eg A.
+; eg b.
+; eg c)
+; eg d.)
+; eg (e)
+; eg (4)
+
+rule> <outline at BOS>
+search right_border <outline_BOS> <\
+(^`(`?)\
+([[:alnum:]])\
+(`.`?)\
+(`)`?)\
+>
+
+;---------------------------------------
+; English ordinals
+; eg 1st
+; eg 2nd
+; eg 3rd
+; eg 4th
+;
+; German ordinals
+; eg 80er
+; eg 80erin
+; eg 80erinnen
+; eg 80ern
+; eg 80ers
+; eg 8fach
+; eg 8jahrig
+; eg 32stel
+; eg 32steln
+; eg 32stels
+
+rule> <ordinal>
+search <ordinal> <\
+(([[:digit:]]{1,3}(`thou_sep`?[[:digit:]]{3})*)\
+(`ord_suffix`))((-)(,|[[:alpha:]]+))?\
+>
+
+;-------------------------------------------
+; German Ordinals:
+; eg des 5.
+;    des 5., 7., 8. und 9.
+;    5. Apr.
+
+rule> <german_ordinal>
+search <german_ordinal> <\
+(([[:digit:]]{1,2})(`.`) +\
+(Apr|Apr`.`|April|Aug|Aug`.`|August|Dez|Dez`.`|Dezember|Feb|Feb`.`|Februar|Jan|Jan`.`|Januar|Jul|Jul`.`|Juli|Jun|Jun`.`|Juni|Mär|Mär`.`|März|Mai|Nov|Nov`.`|November|Okt|Okt`.`|Oktober|Sept|Sept`.`|September))\
+|\
+(([[:alpha:]]+) +([[:digit:]]{1,3})\
+(`.`)\
+((, +([[:digit:]]{1,3})`.`)* +(und|bis|bzw`.`|oder) +([[:digit:]]{1,3})`.`)?)\
+>
+
+;---------------------------------------
+; eg am 5.11.
+
+rule> <two_digit_date>
+search <two_digit_date> <\
+(am|zum|dem|den|des|vom|Am|Zum|Dem|Den|Des|Vom) +\
+(([[:digit:]]{1,2})\
+`.`\
+([[:digit:]]{1,2})\
+(`.`))\
+>
+
+;---------------------------------------
+; eg 12/12/97
+
+rule> <date>
+search <date> <\
+([[:digit:]]{1,2})\
+`date_sep`\
+([[:digit:]]{1,2})\
+`date_sep`\
+([[:digit:]]{2}|[[:digit:]]{4})\
+>
+
+;---------------------------------------
+; eg 2am
+
+rule> <english hour>
+search <english_hour> <\
+([[:digit:]]{1,2})\
+(`time_suffix`)\
+>
+
+;---------------------------------------
+; eg 2:30
+; eg 00:00:00.1
+; eg 00:00:01
+; eg 00:01.1
+
+rule> <time>
+search <time> <\
+([[:digit:]]{1,2})\
+(`time_sep`([[:digit:]]{2}))\
+((`time_sep`([[:digit:]]{2}))(`time_dec_sep`([[:digit:]]+))?)?\
+(`time_suffix`)?\
+>
+
+;---------------------------------------
+; short year - apostrope followed by 2 digits
+
+; eg '97
+
+rule> <short year>
+search <short_year> <\
+'[[:digit:]][[:digit:]]\
+>
+
+;Following rule commented out-will go thru dictionary lookup
+;---------------------------------------
+; Note: there are 2 rules here since the delimeter gobbles up the left bracket
+; eg A.
+; eg b.
+; eg c)
+; eg d.)
+; eg (e)
+; eg (4)
+
+;rule> <outline at mid-sentence with bracket>
+;search <outline_mid> <\
+;(`(`)\
+;([[:alnum:]])\
+;(`.`?)\
+;(`)`?)\
+;>
+
+;rule> <outline at mid-sentence>
+;search <outline_mid> <\
+;(`(`?)\
+;([[:alnum:]])\
+;(`.`?)\
+;(`)`?)\
+;>
+
+;---------------------------------------
+; year ending with s or 's
+; 1400 through 2100
+
+; eg 1940's
+; eg 1940s
+; eg '80's
+; eg 80s -- is unfound
+
+rule> <year ending with an s or 's>
+search <year_s> <\
+([[:alnum:]]+-)?(([[:digit:]]{3}|'[[:digit:]])\
+0\
+('?)\
+s)\
+>
+
+;---------------------------------------
+; any number of digits followed by 's or s
+;
+; eg 10s
+; eg 200's
+; eg 1200s
+
+rule> <digits ending with an s or 's>
+search <digit_s> <\
+([[:digit:]]+)\
+('?)\
+s\
+>
+
+;---------------------------------------
+; german adjectival number 1-99 followed by a period
+; note: in english the numeric expression would have already matched
+;       since the period is a decimal separator in english
+;       Hence this rule must occur after the numeric one.
+
+; eg 1.
+; eg 2.
+; eg 100.
+
+rule> <adj number>
+search <adj_number> <\
+([[:digit:]]{1,2})\
+(`.`)\
+>
+
+;---------------------------------------
+; general numeric input - with optional units
+; optional leading sign
+; optional units at start: $ or £ (currencies)
+; number with or without thousand separators
+; optional decimal point and optional following digits
+; optional fractional part
+; optional units at end: ¢, ', ", %, °, °C, °F, mal (for German)
+
+rule> <numeric>
+search <numeric> <\
+([+±-]?)\
+([$£]?)\
+(\
+(\
+(\
+([[:digit:]]{1,3}((`thou_sep`?[[:digit:]]{3})+)?)\
+(`dec_sep`([[:digit:]])+)?\
+)\
+|(`dec_sep`([[:digit:]])+)\
+)\
+( [[:digit:]]{1,2}/[[:digit:]]+| ?[¼½¾])?\
+)\
+[ ]?([¢'"%°]|°C|C|°F|F|mal)?\
+>
+
+;---------------------------------------
+; eg 1929/30
+; eg 1928/9
+
+rule> <year range>
+search <year_range> <\
+([[:digit:]]{2})\
+([[:digit:]]{2})\
+(/|-)\
+([[:digit:]]{1,2})\
+>
+
+;---------------------------------------
+; ascending numeric range
+; eg 1-3
+
+rule> <numeric range>
+search <numeric_range> <\
+([[:digit:]]+)\
+(-)\
+([[:digit:]]+)\
+>
+
+;---------------------------------------
+rule> <math expression with times or minus>
+search <math_times_minus> <\
+([+±-]?)\
+([[:digit:]]{1,3}(`thou_sep`?([[:digit:]]{3})+)?)\
+(`dec_sep`([[:digit:]])+)?\
+[*×-]\
+([+±-]?)\
+([[:digit:]]{1,3}(`thou_sep`?([[:digit:]]{3})+)?)\
+(`dec_sep`([[:digit:]])+)?\
+>
+
+;---------------------------------------
+; mixed alpha and numeric + one or more periods, or numeric + periods
+; note: had some problems with [[:alnum:].]* construct so replaced it
+;       with ([[:alnum:].])*
+; eg 123.abc
+; eg abc.123
+; eg 123.abc.5
+; eg abc.123.c
+; eg 123.45         (german)
+
+; This rule is subject to euristic processing in RegularExpression.cpp
+; and is not processed by GNU regex engine anymore.
+rule> <dotted alphanum>
+search <dotted_alphanum> <\
+([[:alnum:]]*[[:digit:]]+[[:alnum:]]*)\
+(\.[[:alnum:]]*[[:digit:]]+[[:alnum:]]*)+\
+(\.)?\
+>
+
+;---------------------------------------
+; eg 1/234
+; eg 1/2
+
+rule> <fraction>
+search <fraction> <\
+(([[:digit:]]{1,2})\
+/\
+([[:digit:]]+))((-)(,|[[:alpha:]]+))?\
+>
+;following rule removed 
+;---------------------------------------
+; Note: there are 2 rules here since the delimeter gobbles up the left bracket
+; eg i.
+; eg iv.
+; eg ix.
+; eg (ix.)
+; eg ix.)
+; eg (v)
+
+;rule> <roman outline at mid-sentence with bracket>
+;search <outline_roman_mid> <\
+;(`(`)\
+;([ixv]{1,5})\
+;(`.`?)\
+;(`)`?)\
+;>
+
+;rule> <roman outline at mid-sentence>
+;search <outline_roman_mid> <\
+;(`(`?)\
+;([ixv]{1,5})\
+;(`.`?)\
+;(`)`?)\
+;>
+
+;---------------------------------------
+; Note: there are 2 rules here since the delimeter gobbles up the left bracket
+; eg I.
+; eg IV.
+; eg IX.
+; eg (IX.)
+; eg IX.)
+; eg (V)
+
+;rule> <roman capital outline at mid-sentence with bracket>
+;search <outline_roman_cap_mid> <\
+;(`(`)\
+;([IXV]{1,5})\
+;(`.`?)\
+;(`)`?)\
+;>
+
+;rule> <roman capital outline at mid-sentence>
+;search <outline_roman_cap_mid> <\
+;(`(`?)\
+;([IXV]{1,5})\
+;(`.`?)\
+;(`)`?)\
+;>
+
+;---------------------------------------
+; digit x digit
+; eg 12x14
+; eg 12×14
+; eg 2x4
+; eg 2×4
+
+rule> <digit times digit>
+search <digit_times_digit> <\
+([[:digit:]]+)\
+([x×])\
+([[:digit:]]+)\
+>
+
+;---------------------------------------
+; alpha in angled brackets
+; Note: '>' char is doubled since otherwise it would be the end of the statement
+; eg <hello>
+
+rule> <angled brackets>
+search <angled_brackets> <\
+(<)\
+([[:alpha:]]+)\
+([>>])\
+>
+
+;---------------------------------------
+; numeric hyphen alphanum
+; eg 100-page
+; eg 100-page1junk
+
+rule> <numeric hyphen alphanum>
+search <numeric_hyphen_alphanum> <\
+(([[:digit:]]{1,3}(`thou_sep`?([[:digit:]]{3})+)?)(-)\
+((,)?|([[:alnum:]]*[[:alpha:]][[:alnum:]]*\
+((-)[[:alnum:]]*[[:alpha:]][[:alnum:]]*)*\
+(/([[:digit:]]{1,3}(`thou_sep`?([[:digit:]]{3})+)?)(-)\
+[[:alnum:]]*[[:alpha:]][[:alnum:]]*\
+((-)[[:alnum:]]*[[:alpha:]][[:alnum:]]*)*\
+)*))\
+)\
+|\
+([[:alnum:]]*[[:alpha:]][[:alnum:]]*\
+(/)([[:digit:]]{1,3}(`thou_sep`?([[:digit:]]{3})+)?)(-)\
+[[:alnum:]]*[[:alpha:]][[:alnum:]]*)\
+>
+
+;-------------------------------------------------
+; alphanum hyphen numeric 
+; eg., Total-1; TM233VG-299; 
+;
+rule> <alphanum hyphen numeric>
+search <alphanum_hyphen_numeric> <\
+([[:alnum:]]*[[:alpha:]][[:alnum:]]*)(-)\
+([[:digit:]]{1,3}(`thou_sep`?([[:digit:]]{3})+)?)\
+>
+
+;--------------------------------------------------
+; multi hyphen alphanum
+; eg., 1F-5E-2-3-4
+;
+rule> <multi hyphen alphanum>
+search <multi_hyphen_alphanum> <\
+([[:alnum:]]*[[:digit:]][[:alnum:]]*)\
+(-[[:alnum:]]*[[:digit:]][[:alnum:]]*)+\
+>
+
+;---------------------------------------
+; eg word+word
+
+rule> <word plus word>
+search <word_plus_word> <\
+[[:alpha:]]+\
+(\+)\
+[[:alpha:]]+\
+>
+
+;---------------------------------------
+rule> <math expression>
+search <math_expression> <\
+[^[[:blank:]`(``)``{``}``[``]`]]+\
+[=+÷±]\
+[^[[:blank:]`(``)``{``}``[``]`]]*\
+>
+
+;---------------------------------------
+; ellipsis ...
+
+rule> <ellipsis>
+search no_border <ellipsis> <`.``.``.`>
+
+;---------------------------------------
+; single other symbol - with optional parentheses
+
+rule> <misc symbol>
+search <misc_symbol> <\
+(`(`?)\
+([[:symbol:]])\
+(`)`?)\
+>
+
+;---------------------------------------
+; repeat catch all here first to catch expressions with one or
+; more digits and any number of slashes - as unfound
+; they must not be caught by the following <lookup_needed> rule
+
+rule> <catch all>
+search <catch_all> <\
+[[:digit:]][[:digit:]/]*\
+|\
+[[:digit:]/]*[[:digit:]]\
+>
+
+;---------------------------------------
+; numeric hyphen alphanum
+; eg 100/B
+; eg 100/X86
+
+rule> <slashalpnum>
+search <slashalpnum> <\
+([[:alnum:]]+)(/)\
+(([[:alnum:]]+)\
+|\
+(([[:alnum:]]*[[:alpha:]][[:alnum:]]*)(-)\
+([[:digit:]]+)))\
+>
+
+;---------------------------------------
+; miscdigits
+; eg 100/-2000
+; eg (100-2000/123)
+
+rule> <miscdigits>
+search <miscdigits> <\
+\(?([[:digit:]]+((/[[:digit:]]*)|(-[[:digit:]]*))+)\)?\
+>
+
+; This is the original <lookup needed> rule which is now split
+; into 2 parts to speed up processing
+;rule> <lookup needed>
+;search <lookup_needed> <\
+;(([[:alnum:]'/-]*|(\([[:alnum:]'/-]*\))*)\
+;\(?\
+;[[:alnum:]'/-]*\
+;\)?\
+;([[:alnum:]'/-]*|(\([[:alnum:]'/-]*\))*))\
+;>
+
+; This rule is subject to euristic processing in RegularExpression.cpp
+; and is not processed by GNU regex engine anymore.
+rule> <lookup needed>
+search <lookup_needed> <\
+([[:alpha:]]*\
+(\.-?([[:alpha:]]*))+\
+(\.)?)\
+>
+
+; This rule is subject to euristic processing in RegularExpression.cpp
+; and is not processed by GNU regex engine anymore.
+rule> <lookup needed>
+search <lookup_needed> <\
+(([[:alpha:]]\.)+('s))\
+>
+
+;---------------------------------------
+; expressions that need to be regarded as unfound.
+; This rule has been split into 2 parts to speed up things.
+; This rule is subject to euristic processing in RegularExpression.cpp
+; and is not processed by GNU regex engine.
+
+rule> <catch all>
+search <catch_all> <\
+[^[:blank:]]*\
+(\
+[@#~$%^&*+_=|£¢:?.!¿¡][^[:blank:]]*(/|[^[:punct:]'])\
+)\
+>
+;
+rule> <catch all>
+search <catch_all> <\
+[^[:blank:]]*\
+(\
+[@#~$%^&*+_=|£¢]\
+)\
+>
+;
+

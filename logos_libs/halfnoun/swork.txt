@@ -1,0 +1,35 @@
+Generating SWork information for compound words
+-----------------------------------------------
+
+In general we follow the same logic as for non-compounds, but
+there is a difference for the non-head parts of the compound.
+
+1. Each non-head swork will consist of only a single ssu - the rules
+   for selecting this ssu are described below.
+
+   Firstly apply the same logic for non-compounds to the non-head-word, but
+   we need only match on the word without inflections. This will return between
+   0 and 3 ssu's for the word with lower case first letter and up to 3 with the
+   1st letter in upper case - a total of up to 6 ssu's.
+
+   a. If there are no ssu's then the whole compound word is unfound.
+   b. If there is one ssu - select this one.
+   c. Select the words by word-class in the following precedence:
+          WC04 (stored half-noun), WC04 (adjective), WC01, WC02.
+
+      If there is more than one word of the same word-class select the one
+      with the best(lowest) priority (boris) number. However exclude the overlap
+      priority numbers below, unless only overlap priority number remain in
+      the candidate list.
+
+      Overlap priority numbers:
+
+        i.   WC01 - priority numbers 11 and 12
+        ii.  WC04 (adjectives) - priority numbers 28 and 29
+        iii. WC04 (stored halfnoun) - priority number 32
+
+2. Also the following fields are set for each non-head swork's ssu:
+
+   a. The word class is coded as '04'
+   b. The form field is coded as '09'
+

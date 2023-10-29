@@ -1,0 +1,50 @@
+;Lgssgml Tag File, V3.0, tag format: ASCII
+;
+;       Tag Classes:
+;       paired tags:
+;       SectionTran     translate text in this section
+;       SectionNoTran   don't translate this section's immediate text
+;       SectionProtect  protect (do not translate) all text, including any imbedded sections,
+;                       until a matching end tag is seen.
+;       MidsentTran     translate text inside this midsentence tag
+;       MidsentNoTran   don't translate text inside this midsentence tag
+;       MidsentHidden   don't translate text inside or produce ltx for this midsentence tag
+;                       Note: include the AttachLeft or AttachRight attribute
+;
+;       unpaired tags:
+;       Point           try to keep tag in same relative position
+;
+;       Point Attachment:
+;       AttachLeft      keep tag with word on left (Point only?)
+;       AttachRight     keep tag with word on right (Point only?)
+;       Midsent         Tag Duplication:
+;       Duplicate       this tag can be duplicated in target
+;       NoDuplicate     this tag cannot be duplicated in target
+;
+;defaults
+LOGOS_DEFAULT TagClass           SectionTran
+LOGOS_DEFAULT AttachAttribute    AttachLeft
+LOGOS_DEFAULT DuplicateAttribute NoDuplicate
+;
+;               Logos created tags for v4 filters
+;Logos Propreitary Tags
+LGS-EXT SectionProtect
+LGS-INTL MidsentHidden	AttachLeft
+LGS-INTLD MidsentHidden	AttachLeft	Duplicate
+LGS-INTW MidsentNoTran
+LGS-INTR MidsentHidden	AttachRight
+LGS-INTRD	MidsentHidden	AttachRight	Duplicate
+LGS-TITLE PointSection
+LGS-HEADER PointSection
+LGS-FOOTER PointSection
+;MT tags
+MT-EXT SectionProtect
+MT-INTL MidsentHidden	AttachLeft
+MT-INTLD	MidsentHidden	AttachLeft	Duplicate
+MT-INTW MidsentNoTran
+MT-INTR MidsentHidden	AttachRight
+MT-INTRD	MidsentHidden	AttachRight	Duplicate
+MT-TITLE PointSection
+MT-HEADER PointSection
+MT-FOOTER PointSection
+;

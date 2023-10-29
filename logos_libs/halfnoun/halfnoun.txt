@@ -1,0 +1,131 @@
+Building half-noun cache
+------------------------
+
+Note: In the following we use pat for the pat_number column
+      and stem for stem_number or source_stem_number columns.
+
+   The .ini file contains a section called "sal_exclusion" containing the fields:
+   word-class/superset/set/subset as well as a status which can be 'H', 'I', or 'X'.
+   word-class can only be 01, 02, 04.
+
+   If the value is 'H' (head) the word can only appear in the head position.
+   For example nominalized infinitives and present participles are in this category.
+
+   If the value is 'N' (non-head) the word can only appear in a non-head position.
+
+   If the value is 'X' (exclude) the word will be excluded from the cache.
+   For example proper nouns are in this category.
+
+   If the value is 'I' (include) the word can be used in any position.
+
+   Similarly the "word_exclusion" and "ending_exclusion" sections will restrict,
+   include or exclude words from the cache, based on whether the word matches or
+   ends in an ending in the list. Also the pat_stem_exclusion section restricts
+   words similarly, based on the pat and stem values.
+
+   If there is a conflict between the above sections the precedence order is
+   word_exclusion, ending_exclusion, pat_stem_exclusion, sal_exclusion.
+
+   For stored halfnouns, the only non-default status that will be honoured is
+   the 'X' status, which will remove the word from the cache.
+   By default stored halfnouns support the 'N' status, so this is also honoured.
+
+   The database view german_pat_stem is the union of the tables
+   halfnoun_pat_stem_default and halfnoun_pat_stem tables,
+   restricted to pat/stem for language_code = '01' (German).
+
+1. Join the word_phrase, morphology, meaning tables. Restrictions:
+       German words - language_code = '01'
+       only alphabetic characters - no spaces, hyphens, or other characters
+       only words of length 3 or more
+       non-abbreviations - word_type = '01'
+       source words - source_analysis_code = '1' and primary_switch = 'Y'
+       word_class - only '01', '02', '04', '14', '16
+   The following columns are used:
+       company_code, word, word_class, pat/stem, superset/set/subset
+
+2. Nouns: Select a subset of the join. Select only word_class = '01'
+   For the head-word all pat/stem combinations and all supersets are accepted;
+   For a non-head-word only the following pat/stem combinations are accepted:
+       stem = '01', any pat (canonical form)
+       pat/stem in the german_pat_stem view restricted to German nouns
+
+3. Adjectives and stored half-nouns:
+   Select a subset of the join. Select only word_class = '04'
+   Stored half-nouns have a pat of 485, adjectives do not.
+   (stored half-nouns always have a stem of '01')
+   Only adjectives can appear as the head-word.
+   For the head-word all pat/stem combinations are accepted;
+   For a non-head-word only the following pat/stem combinations are accepted:
+       stem = '01', any pat (canonical form)
+       pat/stem in the german_pat_stem view restricted to German adjectives
+
+4. Verbs: Select a subset of the join. Select only word_class = '02'
+   For the head-word all pat/stem combinations are accepted;
+   For a non-head-word only the following pat/stem combinations are accepted:
+       pat/stem in the german_pat_stem view restricted to German verbs.
+
+5. Arithmetic types: Select a subset of the join. Select only word_class = '14' or '16'
+   All pat/stem combinations are accepted for the head or non-head positions.
+
+6. Take the union of 2-5 above. Remap the word class as follows:
+        wc  part-of-speech      head-word     non-head-word
+        --  --------------      ---------     ----------
+        1   noun                yes           no
+        2   noun                yes           yes
+        3   adjective           yes           no
+        4   adjective           yes           yes
+        5   verb                yes           no
+        6   verb                yes           yes
+        7   stored half-noun    no            yes
+        8   arithmetic-14       yes           yes
+        9   arithmetic-16       yes           yes
+       10   special-word        no            yes
+            e.g. Ballet (from noun Ballett with doubled consonant removed)
+            must be followed by a word beginning with the same consonant
+            ('t' in this case)
+
+7. For all records which allow head-words calculate possible
+   endings using the pat/stem/language as a key into the derived_form table.
+   if the pat or stem is null (remapped to 0) no endings are allowed.
+
+8. Connector information is calculated for non-head words
+   as per connector.txt file
+
+9. The cache is built from the above table. There will be one record for each
+   company-code/word/word_class/pat/stem combination
+   with connector, ending information included.
+
+   Both the un-normalized (original) word and normalized word is stored.
+   The normalized form is stored in lower case with eszett replaced by "ss".
+   For word-class 2 only, if a normalized word ends in a doubled
+   consonant (except for s) we will add an extra entry into the cache
+   with the last letter removed in the normalized word - the unnormalized
+   word remains unchanged along with all the connector flags. This enables
+   the cache to split a word like "Balettheater" to "Balett Theater";
+   the new spelling is "Baletttheater".
+
+Context of decomposition criteria.
+----------------------------------
+
+   The following possibilities of the head-word occur:
+     a. compound word consists only of non-head-words
+     b. head-word is a noun
+     c. head-word is an adjective
+     d. head-word is a verb
+     e. head-word is a noun or an adjective
+   Whether the search word is in all upper-case or not.
+   The company_code list.
+
+Untranslated compounds
+----------------------
+
+Certain names of cities, etc should not be decomposed.
+The [no_decomposition] section in the .ini file lists
+file names of files containing words that should not be
+decomposed.
+
+These are loaded into memory and for every input word,
+if the word occurs in one of these files, the word is
+not decomposed.
+

@@ -1,0 +1,21 @@
+[ODBC Data Sources]
+LogosDB             = PostgreSQL version of Logos DB
+
+[LogosDB]
+Description         = Test to Postgres
+Driver              = /usr/local/lib/psqlodbc.so
+Trace               = Yes
+TraceFile           = sql.log
+Database            = ESENSE
+Servername          = HOSTNAME
+UserName            = OWNER
+Password            = PASSWORD
+Port                = 5432	
+Protocol            = 6.4
+ReadOnly            = No
+RowVersioning       = No
+ShowSystemTables    = No
+ShowOidColumn       = No
+FakeOidIndex        = No
+
+

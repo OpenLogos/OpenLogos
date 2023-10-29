@@ -1,0 +1,24 @@
+[boris_exclusion]
+20=19
+23=22
+
+[boris_replacement]
+19=14,15,16,17
+20=14,15,16,17
+22=14,15,16,17
+23=14,15,16,17
+24=14,15,16,17
+25=14,15,16,17
+26=14,15,16,17
+27=14,15,16,17
+28=14,15,16,17
+29=14,15,16,17
+30=14,15,16,17
+31=14,15,16,17
+32=14,15,16,17
+33=14,15,16,17
+
+[Language]
+ConjugateList=noch,prep,statt,und,oder,bis,bzw,als auch,ebenso wie,sondern auch,wie auch,und/oder,aber auch,jedoch auch,oder auch,und auch,so wie auch,ebenso wie auch,u.
+PrefixList=ab,an,auf,aus,außen,be,bei,binnen,ein,einzel,ent,ex,feier,fertig,fort,ge,gesamt,groß,halbfertig,hard,haupt,her,hin,hinter,hoch,im,in,innen,kalt,klein,längs,los,mehr,mittel,nach,neben,ober,primär,quer,rück,sekundär,sekundar,soft,sonn,tief,über,um,unter,ver,viel,vor,vorder,warm,weiter,zu,zurück
+OrdinalPrefixList=alle,allem,allen,aller,am,ans,aufs,beim,das,dein,deine,deinem,deinen,deiner,deines,dem,den,der,des,die,diese,diesem,diesen,dieser,dieses,durchs,ein,eine,einem,einen,einer,eines,euer,euere,euerem,eueren,euerer,eueres,fürs,hinterm,hinters,ihr,ihre,ihrem,ihren,ihrer,ihres,im,ins,jede,jedem,jeder,jedes,jene,jenem,jenen,jener,jenes,kein,keine,keinem,keinen,keiner,keines,mein,meine,meinem,meinen,meiner,meines,sein,seine,seinem,seinen,seiner,seines,überm,übern,ums,unser,unsere,unserem,unseren,unserer,unseres,unsre,unsrem,unsren,unsrer,unsres,unterm,unters,vom,vorm,vors,zum,zur

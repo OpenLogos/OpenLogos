@@ -1,0 +1,27 @@
+Sample  BOS                 Middle
+---------------------------------------
+(a.)    Outline_Notation  Enumeration
+(a)     Outline_Notation  Enumeration
+a.)     Outline_Notation
+a.      Outline_Notation
+a)      Outline_Notation
+---------------------------------------
+(3.)    Outline_Notation  Enumeration
+(3)     Outline_Notation  Enumeration
+3.)     Outline_Notation
+3.      Outline_Notation
+3)      Outline_Notation
+---------------------------------------
+(x.)    Outline_Notation  Enumeration
+(x)     Outline_Notation  Enumeration
+x.)     Outline_Notation
+x.      Outline_Notation
+x)      Outline_Notation
+---------------------------------------
+(X.)    Outline_Notation  Enumeration
+(X)     Outline_Notation  Enumeration
+X.)     Outline_Notation
+X.      Outline_Notation
+X)      Outline_Notation
+---------------------------------------
+

@@ -1,0 +1,69 @@
+# overflow 3b table data.
+#
+# The original version of the file have been lost.
+# This new format file has been recreated from binary,
+# and now loaded by t1-t4 modules themselves,
+# without offline binary generation step.
+#
+# Notes on the format of the file
+#	1. The first column has been added for readability.
+#	   It is ignored when loading the file, but it should not contain
+#	   anything but decimal numbers.
+#	2. # symbol in the first position of a line designates comment
+#	3. separate numbers by spaces
+#	4. don't change the number of rows and columns in the array
+#
+# AT 4/24/98
+#
+# No tgt wc set sub sup form ofl3 sc12 sc45 wldn wldv
+# == === == === === === ==== ==== ==== ==== ==== ====
+  1   0   1   0   0   0   0    5    5    5    0    0
+  2   0   1   0   0   1   0    5    5    5    0    0
+  3   0   1   0   0   2   0    5    5    5    0    0
+  4   0   1   0   0   3   0    5    5    5    0    0
+  5   0   1   0   0   5   0    5    5    5    0    0
+  6   0   1   0   0   6   0    5    5    5    0    0
+  7   0   1   0   0   8   0    5    5    5    0    0
+  8   0   1   0   0   9   0    5    5    5    0    0
+  9   0   1   0   0  10   0    5    5    5    0    0
+ 10   0   1   0   0  11   0    5    5    5    0    0
+ 11   0   1   0   0  12   0    5    5    5    0    0
+ 12   0   1   0   0  13   0    5    5    5    0    0
+ 13   0   1   0   0  14   0    5    5    5    0    0
+ 14   0   1   0   0  15   0    5    5    5    0    0
+ 15   0   1   0   0  16   0    5    5    5    0    0
+ 16   0   4   0   0  16   0    4    0    4    0    0
+ 17   0   4   0   0   0   0    1    1    1    0    0
+ 18   0   4   0   0   0   0    2    2    2    0    0
+ 19   0   4   0   0   0   0    3    3    3    0    0
+ 20   0   4   0   0   0   0    5    5    5    0    0
+ 21   0   4   0   0   0   0    8    8    2    0    0
+ 22   0   4   0   0   0   0    9    9    3    0    0
+ 23   0   3   0   0   0   0    8    8    8    0    0
+ 24   0   6   0   0   0   0    8    8    8    0    0
+ 25   0  13   0   0   0   0    2    0    2    0    0
+ 26   0  13   0   0   0   0    3    0    3    0    0
+ 27   0  14   0   0   0   0    5    5    5    0    0
+ 28   0  16   0   0   0   0    5    5    5    0    0
+ 29   0  19   0   0   0   0    4    0    4    0    0
+ 30   0  20   0   0   0   0    7    0    7    0    0
+ 31   0  20   0   0   0   0    8    0    8    0    0
+ 32   0   0   0   0   0   0    0    0    0    0    0
+ 33   0   0   0   0   0   0    0    0    0    0    0
+ 34   0   0   0   0   0   0    0    0    0    0    0
+ 35   0   0   0   0   0   0    0    0    0    0    0
+ 36   0   0   0   0   0   0    0    0    0    0    0
+ 37   0   0   0   0   0   0    0    0    0    0    0
+ 38   0   0   0   0   0   0    0    0    0    0    0
+ 39   0   0   0   0   0   0    0    0    0    0    0
+ 40   0   0   0   0   0   0    0    0    0    0    0
+ 41   0   0   0   0   0   0    0    0    0    0    0
+ 42   0   0   0   0   0   0    0    0    0    0    0
+ 43   0   0   0   0   0   0    0    0    0    0    0
+ 44   0   0   0   0   0   0    0    0    0    0    0
+ 45   0   0   0   0   0   0    0    0    0    0    0
+ 46   0   0   0   0   0   0    0    0    0    0    0
+ 47   0   0   0   0   0   0    0    0    0    0    0
+31 # number of significant lines in the array. Although it is less than
+#    the total #of lines in the array, don't removes the rest of the lines.
+#    All 47 lines should be here.

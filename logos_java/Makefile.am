@@ -1,0 +1,3 @@
+
+SUBDIRS = GermanHalfNoun GlobalWordsEngineAPI \
+	PatStem
