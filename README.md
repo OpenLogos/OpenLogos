@@ -41,9 +41,9 @@ Source downloads are available at the download page. Compilation then proceeds w
 
 #### Ubuntu Linux:
 
-My notes on installation on Ubuntu 10.10 are at Installation_and_use/Ubuntu-10_10.
+My notes on installation on Ubuntu 10.10 are at `Installation_and_use/Ubuntu-10_10`.
 
-The definitive article on Ubuntu installation and configuration is Torsten Scheck's 2006 article in German and translated here on the Wiki at Installation_and_Use/Ubuntu-5_x). There is also a list of updated instructions for Ubuntu 9.x here.
+The definitive article on Ubuntu installation and configuration is [Torsten Scheck's 2006 article](http://www.pro-linux.de/artikel/2/253/openlogos-101-installation-und-anwendung.html) in German and translated here on the Wiki at [Installation_and_Use/Ubuntu-5_x](https://sourceforge.net/p/openlogos-mt/wiki/Installation_and_Use/Ubuntu-5_x). There is also a list of updated [instructions for Ubuntu 9.x here](http://logos-os.dfki.de/Install_for_Ubuntu_9.X.html).
 
 #### Slackware Linux up to 12.2:
 
@@ -51,11 +51,11 @@ The definitive article on Ubuntu installation and configuration is Torsten Schec
 
 ### 2. Use a precompiled VirtualBox machine
 
-VirtualBox is a Sun (now Oracle) product that lets you host virtual machines on the computer of your choice. I'm currently setting up an Ubuntu 10.10 install on my Windows 7 machine, for instance - but there is a completed VirtualBox installation already available here. Check the README there for instructions on how to use it.
+VirtualBox is a Sun (now Oracle) product that lets you host virtual machines on the computer of your choice. I'm currently setting up an Ubuntu 10.10 install on my Windows 7 machine, for instance - but there is a completed VirtualBox installation already available [here](http://vikitraduko.saluton.dk/openlogos/). Check the README there for instructions on how to use it.
 
 ### 3. Use the precompiled Windows version
 
-Norman Reid has contributed a version of OpenLogos compiled with MinGW under Windows. Download it from DFKI. Norman's source changes and Eclipse project are available in the Windows source version. Some of those changes have been rolled into the main source tree; eventually, a standard build with the MinGW toolchain will be part of the standard offering here at SourceForge, but ... not yet.
+Norman Reid has contributed a version of OpenLogos compiled with MinGW under Windows. Download it from DFKI - Norman's source changes and Eclipse project are available in the [Windows source version](http://logos-os.dfki.de/release/OpenLogos_Windows_SRC.zip). Some of those changes have been rolled into the main source tree; eventually, a standard build with the MinGW toolchain will be part of the standard offering here at SourceForge, but ... not yet.
 
 ## Modifying OpenLogos
 
