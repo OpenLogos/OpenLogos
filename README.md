@@ -4,7 +4,7 @@ The open-source version of the commercial Logos machine translation system in pr
 
 ## Disclaimer
 
-The contents of this repo and `README` have been take verbatim from the [OpenLogos SourceForge page](https://sourceforge.net/projects/openlogos-mt/) and the [SourceForge Wiki](https://sourceforge.net/p/openlogos-mt/wiki/Home/). The authors of the text are Michael Roberts and Walter Kasper.
+The contents of this repo and `README` have been taken verbatim from the [OpenLogos SourceForge page](https://sourceforge.net/projects/openlogos-mt/) and the [SourceForge Wiki](https://sourceforge.net/p/openlogos-mt/wiki/Home/). The authors of the text are Michael Roberts and Walter Kasper.
 
 
 ## The LOGOS Machine Translation System
